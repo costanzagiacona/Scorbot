@@ -1,4 +1,8 @@
 // Comunication Echo
+/*
+Questo codice implementa una comunicazione seriale di tipo echo tra due canali seriali.
+ In pratica, qualsiasi dato ricevuto su un canale viene immediatamente inoltrato all'altro.
+*/
 
 #if SELECT_SKETCH == 3
 
@@ -17,7 +21,8 @@
 // Pins
 // ============================================================
 
-#define PIN_TOGGLE 13       // Toggle pin
+#define PIN_TOGGLE PE3    //13       // Toggle pin
+// viene usato per indicare quando i dati vengono ricevuti e trasmessi
 
 
 // ============================================================
@@ -44,15 +49,15 @@ HardwareSerial *serial_out;
 // ============================================================
 
 void setup() {
-  toggle.set(true);
+  toggle.set(true); // Attiva il pin di toggle all'inizio
 
-  serial_in = SerialComm::port(CHANNEL_IN);
-  serial_out = SerialComm::port(CHANNEL_OUT);
+  serial_in = SerialComm::port(CHANNEL_IN); // Ottiene la porta seriale in ingresso
+  serial_out = SerialComm::port(CHANNEL_OUT); // Ottiene la porta seriale in uscita
 
-  SerialComm::start(serial_in, BAUDRATE_IN);
-  SerialComm::start(serial_out, BAUDRATE_OUT);
+  SerialComm::start(serial_in, BAUDRATE_IN); // Avvia la comunicazione seriale in ingresso
+  SerialComm::start(serial_out, BAUDRATE_OUT); // Avvia la comunicazione seriale in uscita
 
-  toggle.set(false);
+  toggle.set(false); // Spegne il pin di toggle
 }
 
 
@@ -62,15 +67,15 @@ void setup() {
 
 void loop() {
   if(serial_in->available() > 0 || serial_out->available() > 0) {
-    toggle.set(true);
+    toggle.set(true);  // Accende il toggle quando ci sono dati da leggere
     while(serial_in->available() > 0) {
-      serial_out->write((uint8_t) serial_in->read());
+      serial_out->write((uint8_t) serial_in->read()); // Trasmette i dati ricevuti da serial_in a serial_out
     }
     while(serial_out->available() > 0) {
-      serial_out->read();
+      serial_out->read(); // Svuota il buffer serial_out (probabilmente per evitare overflow)
     }
   }
-  toggle.set(false);
+  toggle.set(false); // Spegne il toggle quando non ci sono dati
 }
 
 

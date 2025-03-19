@@ -1,3 +1,15 @@
+/*
+Questo codice è un sistema di protezione che garantisce che solo schede compatibili 
+possano eseguire determinate modalità (SELECT_SKETCH). Se l’utente imposta un 
+valore non supportato, il programma non verrà eseguito.
+
+Arduino Uno	1, 2, 3	❌ Bloccato
+Arduino Uno	4	✅ Funziona
+Arduino Mega	1, 2, 3, 4	✅ Funziona
+Arduino Leonardo	1, 2, 3	❌ Bloccato
+Arduino Leonardo	4	✅ Funziona
+*/
+
 #if defined(__AVR_ATmega328P__) || defined(__AVR_ATmega168__)
 #define UNO
 #endif
@@ -10,6 +22,11 @@
 #define LEONARDO
 #endif
 
+//STM32
+#if defined(ARDUINO_ARCH_STM32) 
+#define STM32
+#endif
+
 #define SELECT_SKETCH 1
 // 1: Controller
 // 2: Debugger
@@ -18,7 +35,7 @@
 
 #if !defined(SELECT_SKETCH) || \
     (SELECT_SKETCH < 1 || SELECT_SKETCH > 4) || \
-    (!defined(MEGA) && SELECT_SKETCH < 4)
+    (!defined(MEGA) && !defined(STM32) && SELECT_SKETCH < 4)
 
 #ifdef SELECT_SKETCH
 #undef SELECT_SKETCH

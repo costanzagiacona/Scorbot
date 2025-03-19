@@ -17,12 +17,12 @@
 // Pins
 // ============================================================
 
-#define PIN_ANALOG_1  A0
-#define PIN_ANALOG_2  A1
-#define PIN_ANALOG_3  A2
-#define PIN_ANALOG_4  A3
-#define PIN_ANALOG_5  A4
-#define PIN_ANALOG_6  A5
+#define PIN_ANALOG_1  PC0   //A0
+#define PIN_ANALOG_2  PC1   //A1
+#define PIN_ANALOG_3  PC2   //A2
+#define PIN_ANALOG_4  PC3   //A3
+#define PIN_ANALOG_5  PA2   //A4
+#define PIN_ANALOG_6  PA3   //A5
 
 
 // ============================================================
@@ -55,15 +55,15 @@ PinMeasure analogs[COUNT] = {
   PinMeasure(PIN_ANALOG_6)
 };
 
-uint16_t reads[COUNT];
-int16_t pwms[COUNT];
+uint16_t reads[COUNT]; // Array per i valori letti dai pin analogici
+int16_t pwms[COUNT]; // Array per i segnali di controllo PWM
 
 uint16_t analog_neg_lb =  511 - DEADZONE_INNER;
 uint16_t analog_neg_ub =    0 + DEADZONE_OUTER;
 uint16_t analog_pos_lb =  512 + DEADZONE_INNER;
 uint16_t analog_pos_ub = 1023 - DEADZONE_OUTER;
 
-bool comm_ok = false;
+bool comm_ok = false; // Stato della comunicazione
 Timer timeout;
 
 Communication::MsgROBOT msg_robot;
@@ -108,10 +108,12 @@ void loop() {
     }
   }
 
+  //Legge i valori dai pin analogici e li memorizza nell'array reads[]
   for(uint8_t i = 0; i < COUNT; i++) {
     reads[i] = analogs[i].value();
   }
 
+  //Controlloo valori ricevuti da joystick
   for(uint8_t i = 0; i < COUNT; i++) {
     pwms[i] = 0;
     if(reads[i] <= 511) {
@@ -132,9 +134,11 @@ void loop() {
       }
     }
 
+    //Memorizza il valore PWM calcolato nel messaggio di controllo.
     msg_pwm.setPwm(i, pwms[i]);
   }
 
+  //Invio dei dati
   timeout.reset(time_us);
   comm_ok = Communication::transmit(&msg_pwm, &msg_ackc, &timeout);
 }

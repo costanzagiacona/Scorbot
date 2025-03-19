@@ -18,57 +18,57 @@
 // ============================================================
 
 // DC Motors PINs
-#define MOTORS_EN     PG10    //38    // Motors enabler
+#define MOTORS_EN     PG10    //38    // Motors enabler -  pin per abilitare i motori, controllare la direzione di rotazione, la PWM (velocità), gli encoder e gli endstop switch (fine corsa).
 
 #define MOTOR_1_INA   PG13    //22   // Motor 1 spin direction
 #define MOTOR_1_INB   PG14   //23    // Motor 1 spin direction
-#define MOTOR_1_PWM   5     // Motor 1 spin pwm  ---- PE3 no TIM 
+#define MOTOR_1_PWM   PE7    //5     // Motor 1 spin pwm  
 #define MOTOR_1_CHA   PF6   //A8    // Motor 1 encoder A channel
-#define MOTOR_1_CHB   A14   // Motor 1 encoder B channel PF12 NO ADC
+#define MOTOR_1_CHB   PF3  //A14   // Motor 1 encoder B channel                         
 #define MOTOR_1_END   PG9   //37    // Motor 1 endstop switch
 
-#define MOTOR_2_INA   24    // Motor 2 spin direction  DA CAMBIARE
+#define MOTOR_2_INA   PA13  //24    // Motor 2 spin direction                           
 #define MOTOR_2_INB   PF13  //25    // Motor 2 spin direction
 #define MOTOR_2_PWM   PE5   //2     // Motor 2 spin pwm 
 #define MOTOR_2_CHA   PF7   //A9    // Motor 2 encoder A channel
-#define MOTOR_2_CHB   A15   // Motor 2 encoder B channel
+#define MOTOR_2_CHB   PF5  //A15   // Motor 2 encoder B channel                          
 #define MOTOR_2_END   PG8   //36    // Motor 2 endstop switch
 
 #define MOTOR_3_INA   PF14  //26    // Motor 3 spin direction
 #define MOTOR_3_INB   PF15  //27    // Motor 3 spin direction
 #define MOTOR_3_PWM   PE6   //3     // Motor 3 spin pwm
 #define MOTOR_3_CHA   PF8   //A10   // Motor 3 encoder A channel
-#define MOTOR_3_CHB   PA15  //10    // Motor 3 encoder B channel
+#define MOTOR_3_CHB   PA15  //10    // Motor 3 encoder B channel        PWM
 #define MOTOR_3_END   PG7   //35    // Motor 3 endstop switch
 
 #define MOTOR_4_INA   PG0   //28    // Motor 4 spin direction
 #define MOTOR_4_INB   PG1   //29    // Motor 4 spin direction
-#define MOTOR_4_PWM    6     // Motor 4 spin pwm  PE2 NO PWM
+#define MOTOR_4_PWM   PA1   //6     // Motor 4 spin pwm                                  
 #define MOTOR_4_CHA   PF9   //A11   // Motor 4 encoder A channel
 #define MOTOR_4_CHB   PB5   //11    // Motor 4 encoder B channel
 #define MOTOR_4_END   PG6   //34    // Motor 4 endstop switch
 
-#define MOTOR_5_INA   PB3   //49    // Motor 5 spin direction
+#define MOTOR_5_INA   PB3   //49    // Motor 5 spin direction            PWM
 #define MOTOR_5_INB   PB4   //48    // Motor 5 spin direction
 #define MOTOR_5_PWM   PE1   //7     // Motor 5 spin pwm
 #define MOTOR_5_CHA   PF10  //A12   // Motor 5 encoder A channel
-#define MOTOR_5_CHB   12    // Motor 5 encoder B channel DA CAMBIARE
+#define MOTOR_5_CHB   PE2   //12    // Motor 5 encoder B channel                           
 #define MOTOR_5_END   PG5   //33    // Motor 5 endstop switch
 
-#define MOTOR_6_INA   47    // Motor 6 spin direction
-#define MOTOR_6_INB   PB6   //46    // Motor 6 spin direction
+#define MOTOR_6_INA   PE4   //47    // Motor 6 spin direction                              
+#define MOTOR_6_INB   PB6   //46    // Motor 6 spin direction             PWM
 #define MOTOR_6_PWM   PE0   //8     // Motor 6 spin pwm
-#define MOTOR_6_CHA   A13   // Motor 6 encoder A channel PF1 NO ANALOGICO
-#define MOTOR_6_CHB   PB3   //13    // Motor 6 encoder B channel
+#define MOTOR_6_CHA   PF4   //A13   // Motor 6 encoder A channel                           
+#define MOTOR_6_CHB   PE3   //13    // Motor 6 encoder B channel                            
 #define MOTOR_6_END   PG4   //32    // Motor 6 endstop switch
 
 // Other pins
-#define TOGGLE_COMM   52    // Toggle pin used to communication timing
-#define TOGGLE_CTRL   PA15  //53    // Toggle pin used to control timesampling VERIFICA
+#define TOGGLE_COMM   PF1   //52    // Toggle pin used to communication timing           
+#define TOGGLE_CTRL   PA15  //53    // Toggle pin used to control timesampling    
 
 
 // ============================================================
-// Parameters
+// Parameters 
 // ============================================================
 
 // Control
@@ -179,12 +179,14 @@ Motor motor4 = Motor(mot4_ina, mot4_inb, mot4_pwm, mot4_cha, mot4_chb, mot4_end)
 Motor motor5 = Motor(mot5_ina, mot5_inb, mot5_pwm, mot5_cha, mot5_chb, mot5_end);
 Motor motor6 = Motor(mot6_ina, mot6_inb, mot6_pwm, mot6_cha, mot6_chb, mot6_end);
 
+
+// oggetti che rappresentano i motori, permettendo di attivarli, controllarne la velocità e leggere gli encoder.
 PinControl enable = PinControl(MOTORS_EN);
 PinControl toggle_comm = PinControl(TOGGLE_COMM);
 PinControl toggle_ctrl = PinControl(TOGGLE_CTRL);
 
-Robot robot = Robot(enable, 6, TS_US);
-RobotComm robotcomm = RobotComm(robot, CHANNEL);
+Robot robot = Robot(enable, 6, TS_US); //gestisce i 6 motori e il controllo PID
+RobotComm robotcomm = RobotComm(robot, CHANNEL); //gestisce la comunicazione con il computer o un microcontrollore
 
 
 // ============================================================
@@ -193,15 +195,17 @@ RobotComm robotcomm = RobotComm(robot, CHANNEL);
 
 void setup()
 {
+  //Imposta la frequenza della PWM per il controllo della velocità
   PWMfreq::set(PWMfreq::MegaTimer3::FREQ_3921_16);
   PWMfreq::set(PWMfreq::MegaTimer4::FREQ_3921_16);
-
+  //Avvia la comunicazione seriale a 115200 baud.
   SerialComm::start((uint8_t) CHANNEL, BAUDRATE);
 
   #if defined(DEBUG_COMMUNICATION)
   SerialComm::start((uint8_t) DEBUG_CHANNEL, DEBUG_BAUDRATE);
   #endif
 
+  //collega ogni motore al sistema di controllo
   robot.setMotor(0, motor1);
   robot.setMotor(1, motor2);
   robot.setMotor(2, motor3);
@@ -209,6 +213,7 @@ void setup()
   robot.setMotor(4, motor5);
   robot.setMotor(5, motor6);
 
+  //inizializzano il controllo PID
   robot.initPID(0, PID_1_SAT, PID_1_POLE);
   robot.initPID(1, PID_2_SAT, PID_2_POLE);
   robot.initPID(2, PID_3_SAT, PID_3_POLE);
@@ -223,8 +228,9 @@ void setup()
   robot.setupPID(4, PID_5_DIV, PID_5_KP, PID_5_KI, PID_5_KD);
   robot.setupPID(5, PID_6_DIV, PID_6_KP, PID_6_KI, PID_6_KD);
 
+  //abilita i motori 
   robot.enableMotors();
-
+  //configura la comunicazione
   robotcomm.setPinComm(&toggle_comm);
   robotcomm.setPinCtrl(&toggle_ctrl);
 
@@ -239,9 +245,9 @@ void setup()
 
 void loop()
 {
-  uint32_t time_us = micros();
+  uint32_t time_us = micros(); //prende il tempo corrente in microsecondi
 
-  robotcomm.cycle(time_us);
+  robotcomm.cycle(time_us); //gestisce la comunicazione e aggiorna i controlli
 }
 
 

@@ -13,6 +13,11 @@
 #define LEONARDO
 #endif
 
+//STM32
+#if defined(ARDUINO_ARCH_STM32) 
+#define STM32
+#endif
+
 
 #include <Arduino.h>
 #include <math.h>
@@ -20,7 +25,8 @@
 #include "components.h"
 
 
-#if defined(MEGA)
+//#if defined(MEGA)
+#if defined(STM32)
 //#define DEBUG_COMMUNICATION   // Enable serial communication debugging
 #define DEBUG_CHANNEL 1       // Choice serial channel for debugging
 #define DEBUG_LOW             // Debug low level data exchange

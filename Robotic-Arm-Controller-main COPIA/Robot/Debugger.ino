@@ -17,9 +17,9 @@
 // Pins
 // ============================================================
 
-#define TOGGLE_COMM 52      // Toggle pin used to check timesampling
-#define TOGGLE_CTRL 53      // Toggle pin used to control timesampling
-#define TOGGLE_ERR  51      // Toggle pin used for communication error
+#define TOGGLE_COMM PF1      //52      // Toggle pin used to check timesampling
+#define TOGGLE_CTRL PA15    //53      // Toggle pin used to control timesampling
+#define TOGGLE_ERR  PB1      // 51      // Toggle pin used for communication error
 
 
 // ============================================================
@@ -74,18 +74,20 @@ bool state_ctrl = false;
 // ============================================================
 
 void setup() {
-  toggle_error.set(true);
+  toggle_error.set(true); // Attiva segnalazione errore all'inizio
 
-  SerialComm::start((uint8_t) CHANNEL, BAUDRATE);
+  SerialComm::start((uint8_t) CHANNEL, BAUDRATE); // Avvia la comunicazione seriale
 
   #if defined(DEBUG_COMMUNICATION)
   SerialComm::start((uint8_t) DEBUG_CHANNEL, DEBUG_BAUDRATE);
   #endif
 
+  // Inizializzazione timer e timeout
   timer.setup((uint32_t) 5 * 1000*ERROR_MS);
   timeout.setup((uint32_t) 2 * SAMPLING_US);
   fakedelay.setup((uint32_t) DELAY_US);
 
+  // Inizializzazione messaggi
   msg_idle.setCount(COUNT);
   msg_pwm.setCount(COUNT);
   msg_ref.setCount(COUNT);
@@ -94,11 +96,11 @@ void setup() {
   msg_error.setCount(COUNT);
 
   Communication::channel(CHANNEL);
-  Communication::flush();
+  Communication::flush(); // Pulisce la comunicazione
 
-  delay(5*ERROR_MS);
+  delay(5*ERROR_MS); // Attesa per stabilizzare la comunicazione
 
-  toggle_error.set(false);
+  toggle_error.set(false); // Spegne segnalazione errore
 }
 
 
