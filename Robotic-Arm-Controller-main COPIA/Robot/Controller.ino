@@ -196,14 +196,19 @@ RobotComm robotcomm = RobotComm(robot, CHANNEL); //gestisce la comunicazione con
 void setup()
 {
   //Imposta la frequenza della PWM per il controllo della velocità
-  PWMfreq::set(PWMfreq::MegaTimer3::FREQ_3921_16);
-  PWMfreq::set(PWMfreq::MegaTimer4::FREQ_3921_16);
+  // PWMfreq::set(PWMfreq::MegaTimer3::FREQ_3921_16);
+  // PWMfreq::set(PWMfreq::MegaTimer4::FREQ_3921_16);
+
+  PWMfreq::set(PWMfreq::STM32Timer::TIMER3::FREQ_3921_16);
+  PWMfreq::set(PWMfreq::STM32Timer::TIMER4::FREQ_3921_16);
+
   //Avvia la comunicazione seriale a 115200 baud.
   SerialComm::start((uint8_t) CHANNEL, BAUDRATE);
 
   #if defined(DEBUG_COMMUNICATION)
   SerialComm::start((uint8_t) DEBUG_CHANNEL, DEBUG_BAUDRATE);
   #endif
+  
 
   //collega ogni motore al sistema di controllo
   robot.setMotor(0, motor1);

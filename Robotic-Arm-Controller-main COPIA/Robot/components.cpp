@@ -1,11 +1,12 @@
 #include "components.h"
+#include <HardwareTimer.h>
 
 
 // ==================================================
 // PWMfreq
 // ==================================================
 
-#if defined(UNO) || defined(MEGA)
+#if defined(UNO) || defined(MEGA) || defined(STM32)
 
 #if defined(UNO)
 void PWMfreq::set(UnoTimer0 freq){
@@ -40,20 +41,64 @@ void PWMfreq::set(MegaTimer5 freq){
 }
 #endif
 
+// CODICE AGGIUNTIVO PER GESTIRE I TIMER
+#if defined(STM32)
+void PWMfreq::set(STM32Timer timer, uint32_t frequency) {
+    HardwareTimer *ht = nullptr;
+
+    // Seleziona il timer corretto
+    switch (timer) {
+        case STM32Timer::TIMER1:
+            ht = new HardwareTimer(TIM1);
+            break;
+        case STM32Timer::TIMER2:
+            ht = new HardwareTimer(TIM2);
+            break;
+        case STM32Timer::TIMER3:
+            ht = new HardwareTimer(TIM3);
+            break;
+        case STM32Timer::TIMER4:
+            ht = new HardwareTimer(TIM4);
+            break;
+        case STM32Timer::TIMER5:
+            ht = new HardwareTimer(TIM5);
+            break;
+        case STM32Timer::TIMER6:
+            ht = new HardwareTimer(TIM6);
+            break;
+        case STM32Timer::TIMER7:
+            ht = new HardwareTimer(TIM7);
+            break;
+        case STM32Timer::TIMER8:
+            ht = new HardwareTimer(TIM8);
+            break;
+        default:
+            return; // Timer non supportato
+    }
+
+    // Configura la frequenza del PWM
+    if (ht) {
+        ht->setMode(1, TIMER_OUTPUT_COMPARE_PWM1, PA8); // Esempio: usa il canale 1 e il pin PA8
+        ht->setOverflow(frequency, HERTZ_FORMAT);
+        ht->resume();
+    }
+}
+
 #endif
 
+#endif
 
 // ==================================================
 // SerialComm
 // ==================================================
 
-#if defined(UNO) || defined(MEGA)
+#if defined(UNO) || defined(MEGA) || defined(STM32)
 
 HardwareSerial* SerialComm::port(uint8_t channel) {
   switch(channel){
     case 0:
       return &Serial;
-    #if defined(MEGA)
+    #if defined(MEGA) || defined(STM32)
     case 1:
       return &Serial1;
     case 2:
@@ -84,7 +129,11 @@ void SerialComm::close(uint8_t channel) {
   close(port(channel));
 }
 
+//#endif
+
 #endif
+
+
 
 // ==================================================
 // PinControl

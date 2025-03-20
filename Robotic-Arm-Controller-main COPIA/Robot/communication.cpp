@@ -1,5 +1,7 @@
 #include "communication.h"
-
+#include "components.h"
+#include <algorithm>
+#include "utils.h"
 
 // ==================================================
 // Communication

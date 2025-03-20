@@ -13,6 +13,12 @@
 #define LEONARDO
 #endif
 
+//STM32
+#if defined(ARDUINO_ARCH_STM32) 
+#define STM32
+#endif
+
+
 //#define PIN_CONTROL_EXTRA_FEATURES
 //#define PIN_CONTROL_STORE_VALUES
 //#define PIN_MEASURE_EXTRA_FEATURES
@@ -25,7 +31,7 @@
 #include "control.h"
 
 
-#if defined(UNO) || defined(MEGA)
+#if defined(UNO) || defined(MEGA) || defined(STM32)
 class PWMfreq {
 public:
   PWMfreq() = delete;
@@ -111,6 +117,16 @@ public:
   };
 #endif
 
+#if defined(STM32)
+ enum class STM32Timer : uint32_t {
+    FREQ_31372_55 = 31372,  // Frequenza alta
+    FREQ_3921_16  = 3921,   // Frequenza media
+    FREQ_490_20   = 490,    // Frequenza default
+    FREQ_122_55   = 122,    // Frequenza bassa
+    FREQ_30_64    = 30      // Frequenza molto bassa
+};
+#endif
+
   //NOTE: Changing timer 0 affects millis() and delay!
 
 #if defined(UNO)
@@ -127,11 +143,15 @@ public:
   static void set(MegaTimer4 freq);
   static void set(MegaTimer5 freq);
 #endif
+
+#if defined(STM32)
+  static void set(STM32Timer freq);
+#endif
 };
 #endif
 
 
-#if defined(UNO) || defined(MEGA)
+#if defined(UNO) || defined(MEGA) || defined(STM32)
 class SerialComm {
 public:
   SerialComm() = delete;
