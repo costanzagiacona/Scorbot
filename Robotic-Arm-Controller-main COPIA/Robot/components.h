@@ -29,8 +29,8 @@
 #include <math.h>
 #include "utils.h"
 #include "control.h"
-
-
+#include <stm32f4xx_hal.h>
+#include <HardwareTimer.h>    /****************/
 #if defined(UNO) || defined(MEGA) || defined(STM32)
 class PWMfreq {
 public:
@@ -118,7 +118,12 @@ public:
 #endif
 
 #if defined(STM32)
- enum class STM32Timer : uint32_t {
+public: 
+  enum class STM32Timer {
+  TIMER1,TIMER2,TIMER3,TIMER4,TIMER5,TIMER6,TIMER7,TIMER8     /****************/
+  };
+
+  enum class STM32Frequency : uint32_t {
     FREQ_31372_55 = 31372,  // Frequenza alta
     FREQ_3921_16  = 3921,   // Frequenza media
     FREQ_490_20   = 490,    // Frequenza default
@@ -145,7 +150,7 @@ public:
 #endif
 
 #if defined(STM32)
-  static void set(STM32Timer freq);
+  static void set(STM32Timer timer, STM32Frequency frequency);   /********/
 #endif
 };
 #endif

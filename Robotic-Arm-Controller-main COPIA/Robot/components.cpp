@@ -1,6 +1,6 @@
 #include "components.h"
 #include <HardwareTimer.h>
-
+#include "communication.h"
 
 // ==================================================
 // PWMfreq
@@ -43,7 +43,7 @@ void PWMfreq::set(MegaTimer5 freq){
 
 // CODICE AGGIUNTIVO PER GESTIRE I TIMER
 #if defined(STM32)
-void PWMfreq::set(STM32Timer timer, uint32_t frequency) {
+void PWMfreq::set(STM32Timer timer, STM32Frequency frequency) {
     HardwareTimer *ht = nullptr;
 
     // Seleziona il timer corretto
@@ -79,7 +79,7 @@ void PWMfreq::set(STM32Timer timer, uint32_t frequency) {
     // Configura la frequenza del PWM
     if (ht) {
         ht->setMode(1, TIMER_OUTPUT_COMPARE_PWM1, PA8); // Esempio: usa il canale 1 e il pin PA8
-        ht->setOverflow(frequency, HERTZ_FORMAT);
+        ht->setOverflow(static_cast<uint32_t>(frequency), HERTZ_FORMAT);
         ht->resume();
     }
 }

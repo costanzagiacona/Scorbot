@@ -41,7 +41,23 @@ Arduino Leonardo	4	✅ Funziona
 #undef SELECT_SKETCH
 #endif
 
-void setup() {}
+void setup() {
+  Serial.begin(115200);
+    while (!Serial); 
+    Serial.println("Verifica Seriali disponibili:");
+
+#ifdef SERIAL_PORT_HARDWARE1
+    Serial.println("Serial1 è disponibile");
+#endif
+
+#ifdef SERIAL_PORT_HARDWARE2
+    Serial.println("Serial2 è disponibile");
+#endif
+
+#ifdef SERIAL_PORT_HARDWARE3
+    Serial.println("Serial3 è disponibile");
+#endif
+}
 void loop() {}
 
 #endif

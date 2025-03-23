@@ -408,7 +408,7 @@ bool Communication::MsgPWM::setCount(uint8_t count){
 
 bool Communication::MsgPWM::setPwm(uint8_t index, int16_t value){
   if(index < getCount()){
-    pwms[index] = min(max(value, -255), 255);
+    pwms[index] = min(max(value, int16_t(-255)), int16_t(255));
     return true;
   } else {
     return false;
@@ -455,7 +455,7 @@ bool Communication::MsgREF::setCount(uint8_t count){
 
 bool Communication::MsgREF::setDeltaEnc(uint8_t index, int16_t value){
   if(index < getCount()){
-    deltas[index] = min(max(value, -255), 255);
+    deltas[index] = min(max(value, int16_t(-255)), int16_t(255));
     return true;
   } else {
     return false;
@@ -797,7 +797,7 @@ bool Communication::MsgACKC::setEndStop(uint8_t index, bool value){
 
 bool Communication::MsgACKC::setDeltaEnc(uint8_t index, int16_t value){
   if(index < getCount()){
-    deltas[index] = min(max(value, -255), 255);
+    deltas[index] = min(max(value, int16_t(-255)), int16_t(255));
     return true;
   } else {
     return false;

@@ -199,8 +199,8 @@ void setup()
   // PWMfreq::set(PWMfreq::MegaTimer3::FREQ_3921_16);
   // PWMfreq::set(PWMfreq::MegaTimer4::FREQ_3921_16);
 
-  PWMfreq::set(PWMfreq::STM32Timer::TIMER3::FREQ_3921_16);
-  PWMfreq::set(PWMfreq::STM32Timer::TIMER4::FREQ_3921_16);
+  PWMfreq::set(PWMfreq::STM32Timer::TIMER3, PWMfreq::STM32Frequency::FREQ_3921_16);
+  PWMfreq::set(PWMfreq::STM32Timer::TIMER4, PWMfreq::STM32Frequency::FREQ_3921_16);
 
   //Avvia la comunicazione seriale a 115200 baud.
   SerialComm::start((uint8_t) CHANNEL, BAUDRATE);

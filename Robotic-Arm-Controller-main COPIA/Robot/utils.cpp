@@ -4,7 +4,7 @@
 // Functions
 // ==================================================
 
-float remap(float v, float a1, float b1, float a2, float b2, bool clamp) {
+float remap(float v, float a1, float b1, float a2, float b2, bool clamp ) {
   float res = a2 + (v - a1) / (b1 - a1) * (b2 - a2);
   if(clamp){
     if(a2 <= b2) {
