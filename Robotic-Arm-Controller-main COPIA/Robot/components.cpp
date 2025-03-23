@@ -1,7 +1,7 @@
 #include "components.h"
 #include <HardwareTimer.h>
 #include "communication.h"
-
+#include "utils.h"
 // ==================================================
 // PWMfreq
 // ==================================================
@@ -175,7 +175,7 @@ void PinControl::pwm(uint8_t pwm){
 }
 
 void PinControl::control(float value){
-  pwm(remap(value, v1, v2, 0l, 255l, true));
+  pwm(remap3(value, v1, v2, 0l, 255l, true));
 }
 
 #if defined(PIN_CONTROL_EXTRA_FEATURES)
@@ -206,7 +206,7 @@ uint8_t PinControl::last_pwm(){
 }
 
 float PinControl::last_control(){
-  return remap(this->pwm_, 0l, 255l, v1, v2);
+  return remap2(this->pwm_, 0l, 255l, v1, v2);
 }
 #endif
 
@@ -255,7 +255,7 @@ uint16_t PinMeasure::value(){
 }
 
 float PinMeasure::measure(){
-  return remap((long) value(), 0l, 1023l, v1, v2);
+  return remap2((long) value(), 0l, 1023l, v1, v2, false);
 }
 
 #if defined(PIN_MEASURE_EXTRA_FEATURES)
@@ -286,7 +286,7 @@ uint16_t PinMeasure::last_value(){
 }
 
 float PinMeasure::last_measure(){
-  return remap((long) this->value_, 0l, 1023l, v1, v2);
+  return remap2((long) this->value_, 0l, 1023l, v1, v2);
 }
 #endif
 

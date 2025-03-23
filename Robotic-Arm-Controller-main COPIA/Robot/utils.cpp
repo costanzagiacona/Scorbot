@@ -4,7 +4,8 @@
 // Functions
 // ==================================================
 
-float remap(float v, float a1, float b1, float a2, float b2, bool clamp ) {
+float remap1(float v, float a1, float b1, float a2, float b2, bool clamp) {
+  clamp = false;
   float res = a2 + (v - a1) / (b1 - a1) * (b2 - a2);
   if(clamp){
     if(a2 <= b2) {
@@ -17,23 +18,26 @@ float remap(float v, float a1, float b1, float a2, float b2, bool clamp ) {
   }
 }
 
-float remap( long v,  long a1,  long b1, float a2, float b2, bool clamp){
-  return remap((float) v, (float) a1, (float) b1, a2, b2, clamp);
+float remap2( long v,  long a1,  long b1, float a2, float b2, bool clamp ){
+  clamp = false;
+  return remap1((float) v, (float) a1, (float) b1, a2, b2, clamp);
 }
 
-long remap(float v, float a1, float b1,  long a2,  long b2, bool clamp){
-  return round(remap(v, a1, b1, (float) a2, (float) b2, clamp));
+long remap3(float v, float a1, float b1,  long a2,  long b2, bool clamp){
+  clamp = false;
+  return round(remap1(v, a1, b1, (float) a2, (float) b2, clamp));
 }
-long remap( long v,  long a1,  long b1,  long a2,  long b2, bool clamp){
-  return round(remap((float) v, (float) a1, (float) b1, (float) a2, (float) b2, clamp));
+long remap4( long v,  long a1,  long b1,  long a2,  long b2, bool clamp){
+  clamp = false;
+  return round(remap1((float) v, (float) a1, (float) b1, (float) a2, (float) b2, clamp));
 }
-
-void byteToHex(const uint8_t & byte, char & hhex, char & lhex) {
+// ricorda che hai torlo const &
+void byteToHex( uint8_t  byte, char  hhex, char  lhex) {
   nibbleToHex((byte & 0b00001111) >> 0, lhex);
   nibbleToHex((byte & 0b11110000) >> 4, hhex);
 }
 
-void nibbleToHex(const uint8_t & nibble, char & hex) {
+void nibbleToHex( uint8_t  nibble, char  hex) {
   switch(nibble) {
     case 0u:
       hex = '0';

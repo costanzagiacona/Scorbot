@@ -122,7 +122,7 @@ void loop() {
       } else if (reads[i] < analog_neg_ub) {
         pwms[i] = -255;
       } else {
-        pwms[i] = (int16_t) remap((float) analog_neg_lb, (float) analog_neg_ub, -0.0f, -255.0f, true);
+        pwms[i] = (int16_t) remap1((float) analog_neg_lb, (float) analog_neg_ub, -0.0f, -255.0f, true);
       }
     } else {
       if(reads[i] < analog_pos_lb) {
@@ -130,7 +130,7 @@ void loop() {
       } else if(reads[i] > analog_pos_ub) {
         pwms[i] = +255;
       } else {
-        pwms[i] = (int16_t) remap((float) analog_pos_lb, (float) analog_pos_ub, +0.0f, +255.0f, true);
+        pwms[i] = (int16_t) remap1((float) analog_pos_lb, (float) analog_pos_ub, +0.0f, +255.0f, true);
       }
     }
 
