@@ -21,7 +21,7 @@
 
 #include <Arduino.h>
 #include <math.h>
-#include "utils.h"
+#include "util.h"
 #include "components.h"
 
 

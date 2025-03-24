@@ -27,7 +27,7 @@
 
 #include <Arduino.h>
 #include <math.h>
-#include "utils.h"
+#include "util.h"
 #include "control.h"
 #include <stm32f4xx_hal.h>
 #include <HardwareTimer.h>    /****************/

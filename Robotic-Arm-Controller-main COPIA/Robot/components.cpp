@@ -1,7 +1,7 @@
 #include "components.h"
 #include <HardwareTimer.h>
 #include "communication.h"
-#include "utils.h"
+#include "util.h"
 // ==================================================
 // PWMfreq
 // ==================================================

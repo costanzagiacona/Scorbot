@@ -1,12 +1,12 @@
-#ifndef UTILS_H
-#define UTILS_H
+#ifndef UTIL_H
+#define UTIL_H
 
 #include <Arduino.h>
 #include <math.h>
-#include <stdint.h>
 
+#ifndef UNUSED
 #define UNUSED(arg) (void)(arg)
-
+#endif
 
 float remap1(float v, float a1, float b1, float a2, float b2, bool clamp);
 float remap2( long v,  long a1,  long b1, float a2, float b2, bool clamp);
@@ -39,4 +39,4 @@ private:
 };
 
 
-#endif  // UTILS_H
+#endif  // UTIL_H

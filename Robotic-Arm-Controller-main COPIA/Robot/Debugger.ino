@@ -7,11 +7,11 @@
 // Includes
 // ============================================================
 
-#include "utils.h"
+#include "util.h"
 #include "control.h"
 #include "components.h"
 #include "communication.h"
-
+#include "variant.h"
 
 // ============================================================
 // Pins

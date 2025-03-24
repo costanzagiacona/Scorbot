@@ -11,11 +11,11 @@ Questo codice implementa una comunicazione seriale di tipo echo tra due canali s
 // Includes
 // ============================================================
 
-#include "utils.h"
+#include "util.h"
 #include "control.h"
 #include "components.h"
 #include "communication.h"
-
+#include "variant.h"
 
 // ============================================================
 // Pins
