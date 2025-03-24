@@ -125,6 +125,11 @@
 #define DEBUG_BAUDRATE 115200
 #endif
 
+// dichiarazione oggetto serial
+HardwareSerial Serial1(PA10, PA9); //RX, TX
+HardwareSerial Serial2(PA3, PA2); //RX, TX
+//HardwareSerial Serial3(PB11, PB10); //RX, TX
+HardwareSerial Serial4(PC7, PC6); //RX, TX
 
 // ============================================================
 // Components & Variables
@@ -198,6 +203,14 @@ void setup()
   //Imposta la frequenza della PWM per il controllo della velocità
   // PWMfreq::set(PWMfreq::MegaTimer3::FREQ_3921_16);
   // PWMfreq::set(PWMfreq::MegaTimer4::FREQ_3921_16);
+
+
+  // inizializza serial per stm32
+  //Serial1.begin(115200);
+  Serial1.begin(115200);
+  Serial2.begin(115200);
+  //Serial3.begin(115200);
+  
 
   PWMfreq::set(PWMfreq::STM32Timer::TIMER3, PWMfreq::STM32Frequency::FREQ_3921_16);
   PWMfreq::set(PWMfreq::STM32Timer::TIMER4, PWMfreq::STM32Frequency::FREQ_3921_16);

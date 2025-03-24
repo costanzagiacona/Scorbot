@@ -98,7 +98,7 @@ HardwareSerial* SerialComm::port(uint8_t channel) {
   switch(channel){
     case 0:
       return &Serial;
-    #if defined(MEGA)
+    #if defined(MEGA) || defined(STM32)
     case 1:
       return &Serial1;
     case 2:
