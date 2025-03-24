@@ -92,13 +92,13 @@ void PWMfreq::set(STM32Timer timer, STM32Frequency frequency) {
 // SerialComm
 // ==================================================
 
-#if defined(UNO) || defined(MEGA) || defined(STM32)
+#if defined(UNO) || defined(MEGA)
 
 HardwareSerial* SerialComm::port(uint8_t channel) {
   switch(channel){
     case 0:
       return &Serial;
-    #if defined(MEGA) || defined(STM32)
+    #if defined(MEGA)
     case 1:
       return &Serial1;
     case 2:
@@ -129,8 +129,59 @@ void SerialComm::close(uint8_t channel) {
   close(port(channel));
 }
 
-//#endif
+#elif defined(STM32)
+Stream* SerialComm::port(uint8_t channel) {
+  switch(channel) {
+    case 0:
+      return &Serial;
+    #if defined(STM32)
+    case 1:
+      return &Serial1;
+    case 2:
+      return &Serial2;
+    case 3:
+      return &Serial3;
+    #endif
+    default:
+      return &Serial;
+  }
+}
 
+// Avvio della comunicazione seriale
+void SerialComm::start(uint8_t channel, uint32_t baudrate, uint8_t config) {
+    Stream* stream = port(channel);
+
+    #ifdef STM32
+    if (stream == &Serial) {
+        // USBSerial non richiede configurazione della velocità
+        return;
+    }
+    #endif
+
+    // Controlliamo se il puntatore è effettivamente HardwareSerial
+    if (HardwareSerial* hwserial = static_cast<HardwareSerial*>(stream)) {
+        hwserial->begin(baudrate, config);
+        hwserial->flush();
+    }
+}
+
+// Chiusura della comunicazione seriale
+void SerialComm::close(uint8_t channel) {
+    Stream* stream = port(channel);
+
+    #ifdef STM32
+    if (stream == &Serial) {
+        // USBSerial non si chiude con end()
+        return;
+    }
+    #endif
+
+    // Controlliamo se il puntatore è effettivamente HardwareSerial
+    if (HardwareSerial* hwserial = static_cast<HardwareSerial*>(stream)) {
+        hwserial->flush();
+        hwserial->end();
+    }
+}
 #endif
 
 

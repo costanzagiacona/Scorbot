@@ -50,7 +50,11 @@
 
 // Serial Communication Protocol (static)
 class Communication {
-  static HardwareSerial *hwserial;
+  #if defined(STM32)
+    static Stream *hwserial;
+  #else
+    static HardwareSerial *hwserial;
+  #endif
 
 public:
   Communication() = delete;

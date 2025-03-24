@@ -27,7 +27,7 @@
 
 #include <Arduino.h>
 #include <math.h>
-#include "util.h"
+#include "utils.h"
 #include "control.h"
 #include <stm32f4xx_hal.h>
 #include <HardwareTimer.h>    /****************/
@@ -162,13 +162,32 @@ public:
   SerialComm() = delete;
   ~SerialComm() = delete;
 
-  static HardwareSerial* port(uint8_t channel);
+  #if defined(UNO) || defined(MEGA)
+    static HardwareSerial* port(uint8_t channel);
 
-  static void start(HardwareSerial *hwserial, uint32_t baudrate, uint8_t config = SERIAL_8N1);
-  static void start(uint8_t channel, uint32_t baudrate, uint8_t config = SERIAL_8N1);
+    static void start(HardwareSerial *hwserial, uint32_t baudrate, uint8_t config = SERIAL_8N1);
+    static void start(uint8_t channel, uint32_t baudrate, uint8_t config = SERIAL_8N1);
 
-  static void close(HardwareSerial *hwserial);
-  static void close(uint8_t channel);
+    static void close(HardwareSerial *hwserial);
+    static void close(uint8_t channel);
+  
+  #elif defined(STM32)
+    // Cambia HardwareSerial* con Stream* per supportare tutte le porte seriali derivate da Stream
+    static Stream* port(uint8_t channel);
+
+    // Funzione start per Stream*
+    static void start(Stream* stream, uint32_t baudrate, uint8_t config = SERIAL_8N1);
+    
+    // Funzione start con un canale specifico
+    static void start(uint8_t channel, uint32_t baudrate, uint8_t config = SERIAL_8N1);
+
+    // Funzione close per Stream*
+    static void close(Stream* stream);
+    
+    // Funzione close con un canale specifico
+    static void close(uint8_t channel);
+  #endif
+
 };
 #endif
 

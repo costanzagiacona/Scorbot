@@ -7,10 +7,17 @@
 // Communication
 // ==================================================
 
-HardwareSerial* Communication::hwserial = &Serial;
+//HardwareSerial* Communication::hwserial = &Serial;
+
+#if defined(STM32)
+  Stream* Communication::hwserial = &SerialUSB; // STM32 usa SerialUSB (o altro tipo di Stream)
+#else
+  HardwareSerial* Communication::hwserial = &Serial; // Per altre piattaforme, usa Serial
+#endif
 
 void Communication::channel(uint8_t index){
-  hwserial = SerialComm::port(index);
+  //hwserial = SerialComm::port(index);
+  hwserial = static_cast<Stream*>(SerialComm::port(index));
 }
 
 void Communication::flush(bool input){
