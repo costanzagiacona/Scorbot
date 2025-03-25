@@ -193,6 +193,25 @@ PinControl toggle_ctrl = PinControl(TOGGLE_CTRL);
 Robot robot = Robot(enable, 6, TS_US); //gestisce i 6 motori e il controllo PID
 RobotComm robotcomm = RobotComm(robot, CHANNEL); //gestisce la comunicazione con il computer o un microcontrollore
 
+struct Task {
+  Motor motorID;  // ID del motore (1-6)
+  int speed;        // Velocità da applicare al motore
+  uint32_t deadline; // Scadenza (tempo in millisecondi)
+  uint32_t arrivalTime; // Tempo di arrivo (quando il task è stato creato)
+
+  // Costruttore con parametri
+  Task(Motor id, int spd, uint32_t arrival, uint32_t dead)
+      : motorID(id), speed(spd), arrivalTime(arrival), deadline(dead) {}
+};
+ 
+// Inizializzazione manuale dell'array di task
+Task task1(motor1, -100, millis(), millis() + 1200);
+Task task2(motor2, -50, millis(), millis() + 800);
+Task task3(motor3, 50, millis(), millis() + 1500);
+Task task4(motor4, 100, millis(), millis() + 1800);
+Task task5(motor5, 150, millis(), millis() + 2000);
+Task task6(motor6, -150, millis(), millis() + 1000);
+Task tasks[6] = {task1, task2, task3, task4, task5, task6};
 
 // ============================================================
 // Setup
@@ -221,7 +240,7 @@ void setup()
   #if defined(DEBUG_COMMUNICATION)
   SerialComm::start((uint8_t) DEBUG_CHANNEL, DEBUG_BAUDRATE);
   #endif
-  
+
 
   //collega ogni motore al sistema di controllo
   robot.setMotor(0, motor1);
@@ -252,6 +271,7 @@ void setup()
   robotcomm.setPinComm(&toggle_comm);
   robotcomm.setPinCtrl(&toggle_ctrl);
 
+
   Communication::channel(CHANNEL);
   Communication::flush();
 }
@@ -265,7 +285,23 @@ void loop()
 {
   uint32_t time_us = micros(); //prende il tempo corrente in microsecondi
 
-  robotcomm.cycle(time_us); //gestisce la comunicazione e aggiorna i controlli
+  // Trova il task con la deadline più vicina
+  int nearestTaskIndex = 0;
+  uint32_t minDeadline = tasks[0].deadline;
+ 
+  for (int i = 1; i < 6; i++) {
+    if (tasks[i].deadline < minDeadline) {
+      minDeadline = tasks[i].deadline;
+      nearestTaskIndex = i;
+    }
+  }
+ 
+  // Esegui il task più urgente
+  if (time_us >= tasks[nearestTaskIndex].deadline) {
+    robotcomm.cycle(time_us); //gestisce la comunicazione e aggiorna i controlli
+    //Aggiorna la deadline del task eseguito
+    tasks[nearestTaskIndex].deadline = time_us + (nearestTaskIndex + 1) * 100;
+  }
 }
 
 
