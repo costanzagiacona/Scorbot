@@ -11,7 +11,6 @@
 #include "control.h"
 #include "components.h"
 #include "communication.h"
-#include "variant.h"
 
 // ============================================================
 // Pins
@@ -125,11 +124,9 @@
 #define DEBUG_BAUDRATE 115200
 #endif
 
-// dichiarazione oggetto serial
+// dichiarazione oggetto USART Serial
 HardwareSerial Serial1(PA10, PA9); //RX, TX
 HardwareSerial Serial2(PA3, PA2); //RX, TX
-//HardwareSerial Serial3(PB11, PB10); //RX, TX
-HardwareSerial Serial4(PC7, PC6); //RX, TX
 
 // ============================================================
 // Components & Variables
@@ -219,8 +216,6 @@ void job(uint32_t time_us, int motorID, int speed) { // Muove il Motore 0
     robotcomm.cycle(time_us);  // Ora cycle leggerà il messaggio e lo eseguirà
 }
 
- 
- 
 // Inizializzazione manuale dell'array di task
 Task task1(0, millis(), millis() + 1200);
 Task task2(1, millis(), millis() + 800);
@@ -240,12 +235,10 @@ void setup()
   // PWMfreq::set(PWMfreq::MegaTimer3::FREQ_3921_16);
   // PWMfreq::set(PWMfreq::MegaTimer4::FREQ_3921_16);
 
-
   // inizializza serial per stm32
-  //Serial1.begin(115200);
   Serial1.begin(115200);
   Serial2.begin(115200);
-  //Serial3.begin(115200);
+  Serial3.begin(115200);
   
 
   PWMfreq::set(PWMfreq::STM32Timer::TIMER3, PWMfreq::STM32Frequency::FREQ_3921_16);
