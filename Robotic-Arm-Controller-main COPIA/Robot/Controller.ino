@@ -193,24 +193,41 @@ PinControl toggle_ctrl = PinControl(TOGGLE_CTRL);
 Robot robot = Robot(enable, 6, TS_US); //gestisce i 6 motori e il controllo PID
 RobotComm robotcomm = RobotComm(robot, CHANNEL); //gestisce la comunicazione con il computer o un microcontrollore
 
+
+bool flag = true; // flag per velocità positiva o negativa
+int count = 0; // contatore per numero di giri del robot
+int speed;
+
+// Task
 struct Task {
-  Motor motorID;  // ID del motore (1-6)
-  int speed;        // Velocità da applicare al motore
+  int motorID;  // ID del motore (1-6)
   uint32_t deadline; // Scadenza (tempo in millisecondi)
   uint32_t arrivalTime; // Tempo di arrivo (quando il task è stato creato)
 
   // Costruttore con parametri
-  Task(Motor id, int spd, uint32_t arrival, uint32_t dead)
-      : motorID(id), speed(spd), arrivalTime(arrival), deadline(dead) {}
+  Task(int id, uint32_t arrival, uint32_t dead)
+      : motorID(id), arrivalTime(arrival), deadline(dead) {}
 };
+
+
+// Job del task
+void job(uint32_t time_us, int motorID, int speed) { // Muove il Motore 0
+    Communication::MsgPWM msg_pwm;
+    msg_pwm.setCount(robot.getSize());
+    msg_pwm.setPwm(motorID, speed);  // Imposta PWM per il motore 0
+    Communication::snd(&msg_pwm);  // Invia il comando via seriale
+    robotcomm.cycle(time_us);  // Ora cycle leggerà il messaggio e lo eseguirà
+}
+
+ 
  
 // Inizializzazione manuale dell'array di task
-Task task1(motor1, -100, millis(), millis() + 1200);
-Task task2(motor2, -50, millis(), millis() + 800);
-Task task3(motor3, 50, millis(), millis() + 1500);
-Task task4(motor4, 100, millis(), millis() + 1800);
-Task task5(motor5, 150, millis(), millis() + 2000);
-Task task6(motor6, -150, millis(), millis() + 1000);
+Task task1(0, millis(), millis() + 1200);
+Task task2(1, millis(), millis() + 800);
+Task task3(2, millis(), millis() + 1500);
+Task task4(3, millis(), millis() + 1800);
+Task task5(4, millis(), millis() + 2000);
+Task task6(5, millis(), millis() + 1000);
 Task tasks[6] = {task1, task2, task3, task4, task5, task6};
 
 // ============================================================
@@ -283,24 +300,44 @@ void setup()
 
 void loop()
 {
-  uint32_t time_us = micros(); //prende il tempo corrente in microsecondi
+  uint32_t time_us = micros(); // Prende il tempo corrente in microsecondi
 
+  /* DA USARE COME PROVA
+  job(time_us, 5, 20);
+  delay(5000);
+  job(time_us, 5, -20);
+  */
+ 
   // Trova il task con la deadline più vicina
   int nearestTaskIndex = 0;
   uint32_t minDeadline = tasks[0].deadline;
- 
+
   for (int i = 1; i < 6; i++) {
-    if (tasks[i].deadline < minDeadline) {
-      minDeadline = tasks[i].deadline;
-      nearestTaskIndex = i;
-    }
+      if (tasks[i].deadline < minDeadline) {
+          minDeadline = tasks[i].deadline;
+          nearestTaskIndex = i;
+      }
   }
- 
+
   // Esegui il task più urgente
   if (time_us >= tasks[nearestTaskIndex].deadline) {
-    robotcomm.cycle(time_us); //gestisce la comunicazione e aggiorna i controlli
-    //Aggiorna la deadline del task eseguito
-    tasks[nearestTaskIndex].deadline = time_us + (nearestTaskIndex + 1) * 100;
+    if (count < 3){
+      if (flag == true){
+        speed = 100;
+      } else{
+        speed = -100;
+      }
+      job(time_us, nearestTaskIndex, speed);  // Chiamata alla funzione 
+      delay(1000);
+
+      //robotcomm.cycle(time_us); // Gestisce la comunicazione e aggiorna i controlli
+      // Aggiorna la deadline del task eseguito
+      tasks[nearestTaskIndex].deadline = time_us + (nearestTaskIndex + 1) * 100;
+      if (nearestTaskIndex == 6){
+        flag = !flag;
+        count++;
+      }
+    }
   }
 }
 
