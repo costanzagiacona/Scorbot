@@ -217,12 +217,12 @@ void job(uint32_t time_us, int motorID, int speed) { // Muove il Motore 0
 }
 
 // Inizializzazione manuale dell'array di task
-Task task1(0, millis(), millis() + 1200);
-Task task2(1, millis(), millis() + 800);
-Task task3(2, millis(), millis() + 1500);
-Task task4(3, millis(), millis() + 1800);
-Task task5(4, millis(), millis() + 2000);
-Task task6(5, millis(), millis() + 1000);
+Task task1(0, millis(), millis() + 800);
+Task task2(1, millis(), millis() + 1000);
+Task task3(2, millis(), millis() + 1200);
+Task task4(3, millis(), millis() + 1400);
+Task task5(4, millis(), millis() + 1600);
+Task task6(5, millis(), millis() + 1800);
 Task tasks[6] = {task1, task2, task3, task4, task5, task6};
 
 // ============================================================
