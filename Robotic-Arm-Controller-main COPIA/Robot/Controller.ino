@@ -208,10 +208,10 @@ struct Task {
 
 
 // Job del task
-void job(uint32_t time_us, int motorID, int speed) { // Muove il Motore 0
+void job(uint32_t time_us, int motorID, int speed) { // Muove il Motore motorID
     Communication::MsgPWM msg_pwm;
     msg_pwm.setCount(robot.getSize());
-    msg_pwm.setPwm(motorID, speed);  // Imposta PWM per il motore 0
+    msg_pwm.setPwm(motorID, speed);  // Imposta PWM per il motore motorID
     Communication::snd(&msg_pwm);  // Invia il comando via seriale
     robotcomm.cycle(time_us);  // Ora cycle leggerà il messaggio e lo eseguirà
 }
@@ -236,20 +236,22 @@ void setup()
   // PWMfreq::set(PWMfreq::MegaTimer4::FREQ_3921_16);
 
   // inizializza serial per stm32
-  Serial1.begin(115200);
-  Serial2.begin(115200);
-  Serial3.begin(115200);
+  Serial.begin(115200);
+  //Serial2.begin(115200);
+  //Serial3.begin(115200);
+
+  Serial.println("ciao");
   
 
-  PWMfreq::set(PWMfreq::STM32Timer::TIMER3, PWMfreq::STM32Frequency::FREQ_3921_16);
-  PWMfreq::set(PWMfreq::STM32Timer::TIMER4, PWMfreq::STM32Frequency::FREQ_3921_16);
+  // PWMfreq::set(PWMfreq::STM32Timer::TIMER3, PWMfreq::STM32Frequency::FREQ_3921_16);
+  // PWMfreq::set(PWMfreq::STM32Timer::TIMER4, PWMfreq::STM32Frequency::FREQ_3921_16);
 
-  //Avvia la comunicazione seriale a 115200 baud.
-  SerialComm::start((uint8_t) CHANNEL, BAUDRATE);
+  // //Avvia la comunicazione seriale a 115200 baud.
+  // SerialComm::start((uint8_t) CHANNEL, BAUDRATE);
 
-  #if defined(DEBUG_COMMUNICATION)
-  SerialComm::start((uint8_t) DEBUG_CHANNEL, DEBUG_BAUDRATE);
-  #endif
+  // #if defined(DEBUG_COMMUNICATION)
+  // SerialComm::start((uint8_t) DEBUG_CHANNEL, DEBUG_BAUDRATE);
+  // #endif
 
 
   //collega ogni motore al sistema di controllo
@@ -294,13 +296,24 @@ void setup()
 void loop()
 {
   uint32_t time_us = micros(); // Prende il tempo corrente in microsecondi
+  int valore = 75;
+  int IDmot = 5;
 
-  /* DA USARE COME PROVA
-  job(time_us, 5, 20);
+  /* DA USARE COME PROVA*/
+  Serial.println("Motore + \n");
+  //println("ciaooofhtfjutfujtyj");
+  job(time_us, IDmot, valore);
+  robotcomm.cycle(time_us); // Gestisce la comunicazione e aggiorna i controlli
   delay(5000);
-  job(time_us, 5, -20);
-  */
- 
+  Serial.println("Motore - \n");
+  job(time_us, IDmot, -valore);
+  delay(5000);
+  Serial.println("Motore 0\n");
+  job(time_us, IDmot, 0);
+  delay(5000);
+
+  
+ /*
   // Trova il task con la deadline più vicina
   int nearestTaskIndex = 0;
   uint32_t minDeadline = tasks[0].deadline;
@@ -331,7 +344,7 @@ void loop()
         count++;
       }
     }
-  }
+  }*/
 }
 
 
