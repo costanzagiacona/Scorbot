@@ -28,7 +28,7 @@
 //#if defined(MEGA)
 #if defined(STM32)
 #define DEBUG_COMMUNICATION   // Enable serial communication debugging
-#define DEBUG_CHANNEL 1       // Choice serial channel for debugging
+#define DEBUG_CHANNEL 0       // Choice serial channel for debugging
 #define DEBUG_LOW             // Debug low level data exchange
 #define DEBUG_HIGH            // Debug high level data exchange
 #define DEBUG_DATA            // Debug content of data exchange
@@ -105,235 +105,240 @@ public:
   };
 
   
-  struct Message{
-    Message(Code code, uint8_t num);
-    Message(Code code) : Message(code, 0) {}
+  struct Message {
+    Message(Code code, uint8_t num);     // Costruttore principale
+    Message(Code code) : Message(code, 0) {}  // Costruttore con num = 0
 
-    Code getCode();
-    uint8_t getNum();
+    Code getCode();        // Restituisce il codice del messaggio
+    uint8_t getNum();      // Restituisce il numero associato
+    bool setNum(uint8_t num);  // Imposta il numero e restituisce true se valido
 
-    bool setNum(uint8_t num);
-
-    uint8_t size();
-    uint8_t from(uint8_t *buffer);
-    uint8_t fill(uint8_t *buffer);
+    uint8_t size();        // Dimensione totale del messaggio
+    uint8_t from(uint8_t *buffer);  // Decodifica da buffer
+    uint8_t fill(uint8_t *buffer);  // Codifica in buffer
 
   protected:
-    virtual uint8_t size_payload();
-    virtual uint8_t from_payload(uint8_t *buffer);
-    virtual uint8_t fill_payload(uint8_t *buffer);
+    virtual uint8_t size_payload();        // Dimensione del payload
+    virtual uint8_t from_payload(uint8_t *buffer); // Decodifica il payload
+    virtual uint8_t fill_payload(uint8_t *buffer); // Codifica il payload
 
   private:
-    Header header;
+    Header header;       // Header del messaggio
 
-    uint8_t size_header();
-    uint8_t from_header(uint8_t *buffer);
-    uint8_t fill_header(uint8_t *buffer);
+    uint8_t size_header();       // Dimensione dell'header
+    uint8_t from_header(uint8_t *buffer);  // Decodifica l'header
+    uint8_t fill_header(uint8_t *buffer);  // Codifica l'header
   };
 
 
-  struct MsgIDLE : public Message{
-    MsgIDLE() : Message(Code::IDLE) {}
-    MsgIDLE(uint8_t num) : Message(Code::IDLE, num) {}
 
-    uint8_t getCount();
-    
-    bool setCount(uint8_t count);
+  struct MsgIDLE : public Message {
+    MsgIDLE() : Message(Code::IDLE) {}           // Costruttore predefinito
+    MsgIDLE(uint8_t num) : Message(Code::IDLE, num) {} // Costruttore con num
+
+    uint8_t getCount();      // Restituisce il numero di elementi
+    bool setCount(uint8_t count); // Imposta il numero di elementi
 
   protected:
-    uint8_t size_payload();
-    uint8_t from_payload(uint8_t *buffer);
-    uint8_t fill_payload(uint8_t *buffer);
+    uint8_t size_payload();          // Dimensione del payload
+    uint8_t from_payload(uint8_t *buffer); // Decodifica payload
+    uint8_t fill_payload(uint8_t *buffer); // Codifica payload
   };
 
 
-  struct MsgPWM : public Message{
-    MsgPWM() : Message(Code::PWM) {}
-    MsgPWM(uint8_t num) : Message(Code::PWM, num) {}
+  struct MsgPWM : public Message {
+    MsgPWM() : Message(Code::PWM) {}           // Costruttore predefinito
+    MsgPWM(uint8_t num) : Message(Code::PWM, num) {} // Costruttore con num
 
-    uint8_t getCount();
-    int16_t getPwm(uint8_t index);
+    uint8_t getCount();     // Restituisce il numero di canali PWM
+    int16_t getPwm(uint8_t index); // Restituisce il valore PWM di un canale
 
-    bool setCount(uint8_t count);
-    bool setPwm(uint8_t index, int16_t value);
-
-  protected:
-    uint8_t size_payload();
-    uint8_t from_payload(uint8_t *buffer);
-    uint8_t fill_payload(uint8_t *buffer);
-    
-  private:
-    int16_t pwms[8];
-  };
-
-
-  struct MsgREF : public Message{
-    MsgREF() : Message(Code::REF) {}
-    MsgREF(uint8_t num) : Message(Code::REF, num) {}
-
-    uint8_t getCount();
-    int16_t getDeltaEnc(uint8_t index);
-
-    bool setCount(uint8_t count);
-    bool setDeltaEnc(uint8_t index, int16_t value);
+    bool setCount(uint8_t count);      // Imposta il numero di canali PWM
+    bool setPwm(uint8_t index, int16_t value); // Imposta il valore PWM di un canale
 
   protected:
-    uint8_t size_payload();
-    uint8_t from_payload(uint8_t *buffer);
-    uint8_t fill_payload(uint8_t *buffer);
+    uint8_t size_payload();          // Dimensione del payload
+    uint8_t from_payload(uint8_t *buffer); // Decodifica payload
+    uint8_t fill_payload(uint8_t *buffer); // Codifica payload
 
   private:
-    int16_t deltas[8];
+    int16_t pwms[8];  // Array per memorizzare i valori PWM (max 8 canali)
   };
 
 
-  struct MsgROBOT : public Message{
-    MsgROBOT() : Message(Code::ROBOT) {}
-    MsgROBOT(uint8_t num) : Message(Code::ROBOT, num) {}
+  struct MsgREF : public Message {
+    MsgREF() : Message(Code::REF) {}            // Costruttore predefinito
+    MsgREF(uint8_t num) : Message(Code::REF, num) {} // Costruttore con numero identificativo
 
-    uint8_t getCount();
-    uint32_t getTimeSampling();
-    uint8_t getAllowedTicks();
+    uint8_t getCount();      // Restituisce il numero di encoder monitorati
+    int16_t getDeltaEnc(uint8_t index); // Restituisce la variazione dell'encoder all'indice specificato
 
-    bool setCount(uint8_t count);
-    bool setTimeSampling(uint32_t value);
-    bool setAllowedTicks(uint8_t value);
+    bool setCount(uint8_t count);      // Imposta il numero di encoder monitorati
+    bool setDeltaEnc(uint8_t index, int16_t value); // Imposta la variazione dell'encoder all'indice specificato
 
   protected:
-    uint8_t size_payload();
-    uint8_t from_payload(uint8_t *buffer);
-    uint8_t fill_payload(uint8_t *buffer);
+    uint8_t size_payload();          // Restituisce la dimensione del payload
+    uint8_t from_payload(uint8_t *buffer); // Decodifica il payload dal buffer
+    uint8_t fill_payload(uint8_t *buffer); // Scrive il payload nel buffer
 
   private:
-    uint32_t timesampling_us;
-    uint8_t allowed_ticks;
+    int16_t deltas[8];  // Array che memorizza le variazioni degli encoder (max 8 valori)
   };
 
 
-  struct MsgMOTOR : public Message{
-    MsgMOTOR() : Message(Code::MOTOR) {}
-    MsgMOTOR(uint8_t num) : Message(Code::MOTOR, num) {}
-    
-    uint8_t getIndex();
-    bool getChangeEncoder();
-    bool getInvertSpinDir();
-    bool getChangeSpinDir();
-    int8_t getSpinDirection();
-    bool getInvertEncDir();
-    bool getChangeEncDir();
-    int8_t getEncDirection();
-    int32_t getEncoderValue();
 
-    bool setIndex(uint8_t index);
-    bool setChangeEncoder(bool value);
-    bool setInvertSpinDir(bool value);
-    bool setChangeSpinDir(bool value);
-    bool setSpinDirection(int8_t dir);
-    bool setInvertEncDir(bool value);
-    bool setChangeEncDir(bool value);
-    bool setEncDirection(int8_t dir);
-    bool setEncoderValue(int32_t value);
+  struct MsgROBOT : public Message {
+    MsgROBOT() : Message(Code::ROBOT) {}            // Costruttore predefinito
+    MsgROBOT(uint8_t num) : Message(Code::ROBOT, num) {} // Costruttore con numero identificativo
+
+    uint8_t getCount();         // Restituisce il numero di elementi nel messaggio
+    uint32_t getTimeSampling(); // Restituisce il tempo di campionamento in microsecondi
+    uint8_t getAllowedTicks();  // Restituisce il numero massimo di tick consentiti
+
+    bool setCount(uint8_t count);          // Imposta il numero di elementi nel messaggio
+    bool setTimeSampling(uint32_t value);  // Imposta il tempo di campionamento
+    bool setAllowedTicks(uint8_t value);   // Imposta il numero massimo di tick consentiti
 
   protected:
-    uint8_t size_payload();
-    uint8_t from_payload(uint8_t *buffer);
-    uint8_t fill_payload(uint8_t *buffer);
+    uint8_t size_payload();          // Restituisce la dimensione del payload
+    uint8_t from_payload(uint8_t *buffer); // Decodifica il payload dal buffer
+    uint8_t fill_payload(uint8_t *buffer); // Scrive il payload nel buffer
 
   private:
-    uint8_t flags;
-    int32_t encoder;
+    uint32_t timesampling_us; // Tempo di campionamento in microsecondi
+    uint8_t allowed_ticks;    // Numero massimo di tick consentiti
   };
 
 
-  struct MsgPID : public Message{
-    MsgPID() : Message(Code::PID) {}
-    MsgPID(uint8_t num) : Message(Code::PID, num) {}
-    
-    uint8_t getIndex();
-    float getPidDiv();
-    float getPidKp();
-    float getPidKi();
-    float getPidKd();
-    float getPidSat();
-    float getPidPole();
 
-    bool setIndex(uint8_t index);
-    bool setPidDiv(float value);
-    bool setPidKp(float value);
-    bool setPidKi(float value);
-    bool setPidKd(float value);
-    bool setPidSat(float value);
-    bool setPidPole(float value);
+  struct MsgMOTOR : public Message {
+    MsgMOTOR() : Message(Code::MOTOR) {}            // Costruttore predefinito
+    MsgMOTOR(uint8_t num) : Message(Code::MOTOR, num) {} // Costruttore con numero identificativo
+    
+    uint8_t getIndex();            // Restituisce l'indice del motore
+    bool getChangeEncoder();        // Verifica se c'è stato un cambio di encoder
+    bool getInvertSpinDir();        // Verifica se la direzione di rotazione è invertita
+    bool getChangeSpinDir();        // Verifica se la direzione di rotazione è cambiata
+    int8_t getSpinDirection();      // Restituisce la direzione di rotazione
+    bool getInvertEncDir();         // Verifica se la direzione dell'encoder è invertita
+    bool getChangeEncDir();         // Verifica se la direzione dell'encoder è cambiata
+    int8_t getEncDirection();       // Restituisce la direzione dell'encoder
+    int32_t getEncoderValue();      // Restituisce il valore dell'encoder
+
+    bool setIndex(uint8_t index);        // Imposta l'indice del motore
+    bool setChangeEncoder(bool value);   // Imposta il cambio di encoder
+    bool setInvertSpinDir(bool value);   // Imposta l'inversione della direzione di rotazione
+    bool setChangeSpinDir(bool value);   // Imposta il cambio della direzione di rotazione
+    bool setSpinDirection(int8_t dir);   // Imposta la direzione di rotazione
+    bool setInvertEncDir(bool value);    // Imposta l'inversione della direzione dell'encoder
+    bool setChangeEncDir(bool value);    // Imposta il cambio della direzione dell'encoder
+    bool setEncDirection(int8_t dir);    // Imposta la direzione dell'encoder
+    bool setEncoderValue(int32_t value); // Imposta il valore dell'encoder
 
   protected:
-    uint8_t size_payload();
-    uint8_t from_payload(uint8_t *buffer);
-    uint8_t fill_payload(uint8_t *buffer);
+    uint8_t size_payload();          // Restituisce la dimensione del payload
+    uint8_t from_payload(uint8_t *buffer); // Decodifica il payload dal buffer
+    uint8_t fill_payload(uint8_t *buffer); // Scrive il payload nel buffer
 
   private:
-    float div;
-    float kp;
-    float ki;
-    float kd;
-    float sat;
-    float pole;
+    uint8_t flags;   // Byte di flag per indicare stati e modifiche
+    int32_t encoder; // Valore dell'encoder associato al motore
   };
 
 
-  struct MsgACKC : public Message{
-    MsgACKC() : Message(Code::ACKC) {}
-    MsgACKC(uint8_t num) : Message(Code::ACKC, num) {}
 
-    uint8_t getCount();
-    bool getEndStop(uint8_t index);
-    int16_t getDeltaEnc(uint8_t index);
+  struct MsgPID : public Message {
+    MsgPID() : Message(Code::PID) {}            // Costruttore predefinito
+    MsgPID(uint8_t num) : Message(Code::PID, num) {} // Costruttore con numero identificativo
     
-    bool setCount(uint8_t count);
-    bool setEndStop(uint8_t index, bool value);
-    bool setDeltaEnc(uint8_t index, int16_t value);
+    uint8_t getIndex();        // Restituisce l'indice del PID
+    float getPidDiv();         // Restituisce il valore di divisione del PID
+    float getPidKp();          // Restituisce il guadagno proporzionale (Kp)
+    float getPidKi();          // Restituisce il guadagno integrale (Ki)
+    float getPidKd();          // Restituisce il guadagno derivativo (Kd)
+    float getPidSat();         // Restituisce il valore di saturazione
+    float getPidPole();        // Restituisce il valore del polo
+
+    bool setIndex(uint8_t index);   // Imposta l'indice del PID
+    bool setPidDiv(float value);    // Imposta il valore di divisione del PID
+    bool setPidKp(float value);     // Imposta il guadagno proporzionale (Kp)
+    bool setPidKi(float value);     // Imposta il guadagno integrale (Ki)
+    bool setPidKd(float value);     // Imposta il guadagno derivativo (Kd)
+    bool setPidSat(float value);    // Imposta il valore di saturazione
+    bool setPidPole(float value);   // Imposta il valore del polo
 
   protected:
-    uint8_t size_payload();
-    uint8_t from_payload(uint8_t *buffer);
-    uint8_t fill_payload(uint8_t *buffer);
+    uint8_t size_payload();          // Restituisce la dimensione del payload
+    uint8_t from_payload(uint8_t *buffer); // Decodifica il payload dal buffer
+    uint8_t fill_payload(uint8_t *buffer); // Scrive il payload nel buffer
 
   private:
-    uint8_t endstops;
-    int16_t deltas[8];
+    float div;    // Valore di divisione del PID
+    float kp;     // Guadagno proporzionale (Kp)
+    float ki;     // Guadagno integrale (Ki)
+    float kd;     // Guadagno derivativo (Kd)
+    float sat;    // Valore di saturazione
+    float pole;   // Valore del polo
   };
 
 
-  struct MsgACKS : public Message{
-    MsgACKS() : Message(Code::ACKS) {}
-    MsgACKS(uint8_t num) : Message(Code::ACKS, num) {}
 
-    uint8_t getCount();
-    uint8_t getIndex();
+  struct MsgACKC : public Message {
+    MsgACKC() : Message(Code::ACKC) {}            // Costruttore predefinito
+    MsgACKC(uint8_t num) : Message(Code::ACKC, num) {} // Costruttore con numero identificativo
+
+    uint8_t getCount();           // Restituisce il numero di encoder monitorati
+    bool getEndStop(uint8_t index); // Restituisce lo stato dell'interruttore di fine corsa per l'indice specificato
+    int16_t getDeltaEnc(uint8_t index); // Restituisce la variazione dell'encoder per l'indice specificato
     
-    bool setCount(uint8_t count);
-    bool setIndex(uint8_t index);
+    bool setCount(uint8_t count);          // Imposta il numero di encoder monitorati
+    bool setEndStop(uint8_t index, bool value); // Imposta lo stato dell'interruttore di fine corsa per l'indice specificato
+    bool setDeltaEnc(uint8_t index, int16_t value); // Imposta la variazione dell'encoder per l'indice specificato
 
   protected:
-    uint8_t size_payload();
-    uint8_t from_payload(uint8_t *buffer);
-    uint8_t fill_payload(uint8_t *buffer);
+    uint8_t size_payload();          // Restituisce la dimensione del payload
+    uint8_t from_payload(uint8_t *buffer); // Decodifica il payload dal buffer
+    uint8_t fill_payload(uint8_t *buffer); // Scrive il payload nel buffer
+
+  private:
+    uint8_t endstops;    // Byte che memorizza lo stato degli interruttori di fine corsa
+    int16_t deltas[8];   // Array che memorizza le variazioni degli encoder (max 8 valori)
   };
 
 
-  struct MsgERROR : public Message{
-    MsgERROR() : Message(Code::ERROR) {}
-    MsgERROR(uint8_t num) : Message(Code::ERROR, num) {}
 
-    uint8_t getCount();
-    uint8_t getIndex();
-    
-    bool setCount(uint8_t count);
-    bool setIndex(uint8_t index);
+  struct MsgACKS : public Message {
+    MsgACKS() : Message(Code::ACKS) {}            // Costruttore predefinito
+    MsgACKS(uint8_t num) : Message(Code::ACKS, num) {} // Costruttore con numero identificativo
+
+    uint8_t getCount();       // Restituisce il numero di elementi monitorati
+    uint8_t getIndex();       // Restituisce l'indice specifico dell'elemento
+
+    bool setCount(uint8_t count);   // Imposta il numero di elementi monitorati
+    bool setIndex(uint8_t index);   // Imposta l'indice specifico dell'elemento
 
   protected:
-    uint8_t size_payload();
-    uint8_t from_payload(uint8_t *buffer);
-    uint8_t fill_payload(uint8_t *buffer);
+    uint8_t size_payload();          // Restituisce la dimensione del payload
+    uint8_t from_payload(uint8_t *buffer); // Decodifica il payload dal buffer
+    uint8_t fill_payload(uint8_t *buffer); // Scrive il payload nel buffer
+  };
+
+
+
+  struct MsgERROR : public Message {
+    MsgERROR() : Message(Code::ERROR) {}            // Costruttore predefinito
+    MsgERROR(uint8_t num) : Message(Code::ERROR, num) {} // Costruttore con numero identificativo
+
+    uint8_t getCount();       // Restituisce il numero di errori monitorati
+    uint8_t getIndex();       // Restituisce l'indice specifico dell'errore
+
+    bool setCount(uint8_t count);   // Imposta il numero di errori monitorati
+    bool setIndex(uint8_t index);   // Imposta l'indice specifico dell'errore
+
+  protected:
+    uint8_t size_payload();          // Restituisce la dimensione del payload
+    uint8_t from_payload(uint8_t *buffer); // Decodifica il payload dal buffer
+    uint8_t fill_payload(uint8_t *buffer); // Scrive il payload nel buffer
   };
 
 
@@ -348,49 +353,48 @@ public:
 
 class RobotComm {
 public:
-  RobotComm(Robot &robot, uint8_t channel);
-  ~RobotComm();
+  RobotComm(Robot &robot, uint8_t channel); // Costruttore che inizializza il robot e il canale di comunicazione
+  ~RobotComm();                             // Distruttore
 
-  void setPinComm(PinControl *pin);
-  void setPinCtrl(PinControl *pin);
+  void setPinComm(PinControl *pin);         // Imposta il pin di comunicazione per il debug
+  void setPinCtrl(PinControl *pin);         // Imposta il pin di controllo per il debug
 
-  void cycle(uint32_t time_us);
-  void cycle();
+  void cycle(uint32_t time_us);             // Ciclo di comunicazione con tempo definito (microsecondi)
+  void cycle();                             // Ciclo di comunicazione senza tempo definito
 
 private:
-  Robot &robot;           // Robot controlled by this serial communication
-  uint8_t channel;        // Serial channel used for communication
-  PinControl *pin_comm;   // Debug pin for communication timing
-  PinControl *pin_ctrl;   // Debug pin for control timing
+  Robot &robot;           // Riferimento al robot controllato dalla comunicazione seriale
+  uint8_t channel;        // Canale seriale utilizzato per la comunicazione
+  PinControl *pin_comm;   // Pin di debug per il timing della comunicazione
+  PinControl *pin_ctrl;   // Pin di debug per il timing del controllo
 
-  Timer timer;            // Internal timer for serial communication during control operations
-  Timer timeout;          // Internal timer for serial communication receiving timeouts
-  long *encoders_rcv;     // Cumulative encoders values received
-  long *encoders_snd;     // Cumulative encoders values sent
-  uint8_t ticks_allowed;  // Allowed ticks in control mode without a new control
-  uint8_t ticks_used;     // Used ticks in control mode without a new control
+  Timer timer;            // Timer interno per la comunicazione seriale durante le operazioni di controllo
+  Timer timeout;          // Timer interno per il timeout della comunicazione seriale in ricezione
+  long *encoders_rcv;     // Valori cumulativi degli encoder ricevuti
+  long *encoders_snd;     // Valori cumulativi degli encoder inviati
+  uint8_t ticks_allowed;  // Numero di tick consentiti in modalità controllo senza un nuovo controllo
+  uint8_t ticks_used;     // Numero di tick utilizzati in modalità controllo senza un nuovo controllo
 };
-
 
 #if defined(DEBUG_COMMUNICATION)
 class DebugComm {
-  static String indent(uint8_t level, uint8_t size);
+  static String indent(uint8_t level, uint8_t size); // Funzione di indentazione per la stampa dei messaggi di debug
 
 public:
-  DebugComm() = delete;
-  ~DebugComm() = delete;
+  DebugComm() = delete;   // Disabilita il costruttore predefinito
+  ~DebugComm() = delete;   // Disabilita il distruttore
 
-  static void print(Communication::Header      *header, String title, uint8_t indent_level = 0, uint8_t indent_size = 2);
-  static void print(Communication::Message    *message, String title, uint8_t indent_level = 0, uint8_t indent_size = 2);
-  static void print(Communication::MsgIDLE   *msg_idle, String title, uint8_t indent_level = 0, uint8_t indent_size = 2);
-  static void print(Communication::MsgPWM     *msg_pwm, String title, uint8_t indent_level = 0, uint8_t indent_size = 2);
-  static void print(Communication::MsgREF     *msg_ref, String title, uint8_t indent_level = 0, uint8_t indent_size = 2);
-  static void print(Communication::MsgROBOT *msg_robot, String title, uint8_t indent_level = 0, uint8_t indent_size = 2);
-  static void print(Communication::MsgMOTOR *msg_motor, String title, uint8_t indent_level = 0, uint8_t indent_size = 2);
-  static void print(Communication::MsgPID     *msg_pid, String title, uint8_t indent_level = 0, uint8_t indent_size = 2);
-  static void print(Communication::MsgACKC   *msg_ackc, String title, uint8_t indent_level = 0, uint8_t indent_size = 2);
-  static void print(Communication::MsgACKS   *msg_acks, String title, uint8_t indent_level = 0, uint8_t indent_size = 2);
-  static void print(Communication::MsgERROR *msg_error, String title, uint8_t indent_level = 0, uint8_t indent_size = 2);
+  static void print(Communication::Header *header, String title, uint8_t indent_level = 0, uint8_t indent_size = 2); // Stampa l'intestazione del messaggio
+  static void print(Communication::Message *message, String title, uint8_t indent_level = 0, uint8_t indent_size = 2); // Stampa un messaggio
+  static void print(Communication::MsgIDLE *msg_idle, String title, uint8_t indent_level = 0, uint8_t indent_size = 2); // Stampa il messaggio MsgIDLE
+  static void print(Communication::MsgPWM *msg_pwm, String title, uint8_t indent_level = 0, uint8_t indent_size = 2);   // Stampa il messaggio MsgPWM
+  static void print(Communication::MsgREF *msg_ref, String title, uint8_t indent_level = 0, uint8_t indent_size = 2);   // Stampa il messaggio MsgREF
+  static void print(Communication::MsgROBOT *msg_robot, String title, uint8_t indent_level = 0, uint8_t indent_size = 2); // Stampa il messaggio MsgROBOT
+  static void print(Communication::MsgMOTOR *msg_motor, String title, uint8_t indent_level = 0, uint8_t indent_size = 2); // Stampa il messaggio MsgMOTOR
+  static void print(Communication::MsgPID *msg_pid, String title, uint8_t indent_level = 0, uint8_t indent_size = 2);   // Stampa il messaggio MsgPID
+  static void print(Communication::MsgACKC *msg_ackc, String title, uint8_t indent_level = 0, uint8_t indent_size = 2); // Stampa il messaggio MsgACKC
+  static void print(Communication::MsgACKS *msg_acks, String title, uint8_t indent_level = 0, uint8_t indent_size = 2); // Stampa il messaggio MsgACKS
+  static void print(Communication::MsgERROR *msg_error, String title, uint8_t indent_level = 0, uint8_t indent_size = 2); // Stampa il messaggio MsgERROR
 };
 #endif
 

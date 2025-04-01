@@ -140,7 +140,7 @@ bool Communication::snd(Communication::Message *msg){
   #endif
   bool valid = hwserial->write(buffer, msg->size()) == msg->size();
   #if defined(DEBUG_COMMUNICATION) && defined(DEBUG_LOW)
-  DEBUG_SERIAL.print("snd: ");
+  DEBUG_SERIAL.print("\nsnd: ");
   DEBUG_SERIAL.print((uint8_t) msg->getCode());
   DEBUG_SERIAL.print(" ");
   DEBUG_SERIAL.print(msg->size());
@@ -641,18 +641,32 @@ uint8_t Communication::MsgMOTOR::from_payload(uint8_t *buffer){
   return size_payload();
 }
 
-uint8_t Communication::MsgMOTOR::fill_payload(uint8_t *buffer){
-  bool ec;
-  int8_t sd;
-  int8_t ed;
-  int32_t ev;
-  ec = getChangeEncoder();
-  sd = getSpinDirection();
-  ed = getEncDirection();
-  ev = getEncoderValue(); 
-  buffer[1] = ((ed != 0) << 4) | ((ed < 0) << 3) | ((sd != 0) << 2) | ((sd < 0) << 1) | (ec << 0);
-  memcpy((void *) (buffer + 2), (void *) &ev , 4);
-  return size_payload();
+uint8_t Communication::MsgMOTOR::fill_payload(uint8_t *buffer) {
+    bool ec;      // Flag che indica se c'è stato un cambiamento nell'encoder
+    int8_t sd;    // Direzione della rotazione
+    int8_t ed;    // Direzione dell'encoder
+    int32_t ev;   // Valore dell'encoder
+
+    // Ottiene i valori richiesti dalle funzioni corrispondenti
+    ec = getChangeEncoder();  // Ottiene il flag di cambiamento dell'encoder
+    sd = getSpinDirection();  // Ottiene la direzione della rotazione
+    ed = getEncDirection();   // Ottiene la direzione dell'encoder
+    ev = getEncoderValue();   // Ottiene il valore attuale dell'encoder
+
+    // Riempie il buffer con le informazioni di stato
+    // buffer[1] contiene una combinazione di bit che codificano ed, sd ed ec:
+    // - bit 4: ed ≠ 0 (l'encoder si sta muovendo)
+    // - bit 3: ed < 0 (direzione negativa dell'encoder)
+    // - bit 2: sd ≠ 0 (il motore sta ruotando)
+    // - bit 1: sd < 0 (direzione negativa della rotazione)
+    // - bit 0: ec (c'è stato un cambiamento dell'encoder)
+    buffer[1] = ((ed != 0) << 4) | ((ed < 0) << 3) | ((sd != 0) << 2) | ((sd < 0) << 1) | (ec << 0);
+
+    // Copia il valore dell'encoder (int32_t, 4 byte) nei byte successivi del buffer
+    memcpy((void *)(buffer + 2), (void *) &ev, 4);
+
+    // Restituisce la dimensione del payload del messaggio
+    return size_payload();
 }
 
 // ===== MsgPID =====
@@ -723,48 +737,60 @@ uint8_t Communication::MsgPID::size_payload(){
   return 24;
 }
 
-uint8_t Communication::MsgPID::from_payload(uint8_t *buffer){
-  float div;
-  float kp;
-  float ki;
-  float kd;
-  float sat;
-  float pole; 
-  memcpy((void *) &div , (void *) (buffer+ 1), 4);
-  memcpy((void *) &kp  , (void *) (buffer+ 5), 4);
-  memcpy((void *) &ki  , (void *) (buffer+ 9), 4);
-  memcpy((void *) &kd  , (void *) (buffer+13), 4);
-  memcpy((void *) &sat , (void *) (buffer+17), 4);
-  memcpy((void *) &pole, (void *) (buffer+21), 4);
-  setPidDiv(div);
-  setPidKp(kp);
-  setPidKi(ki);
-  setPidKd(kd);
-  setPidSat(sat);
-  setPidPole(pole);
-  return size_payload();
+uint8_t Communication::MsgPID::from_payload(uint8_t *buffer) {
+    float div;  // Divisore del PID
+    float kp;   // Guadagno proporzionale
+    float ki;   // Guadagno integrale
+    float kd;   // Guadagno derivativo
+    float sat;  // Saturazione del PID
+    float pole; // Posizione del polo del filtro derivativo
+
+    // Estrazione dei valori dal buffer e copia nelle variabili corrispondenti
+    memcpy((void *) &div , (void *) (buffer +  1), 4);  // Copia 4 byte per 'div' dal buffer[1]
+    memcpy((void *) &kp  , (void *) (buffer +  5), 4);  // Copia 4 byte per 'kp' dal buffer[5]
+    memcpy((void *) &ki  , (void *) (buffer +  9), 4);  // Copia 4 byte per 'ki' dal buffer[9]
+    memcpy((void *) &kd  , (void *) (buffer + 13), 4);  // Copia 4 byte per 'kd' dal buffer[13]
+    memcpy((void *) &sat , (void *) (buffer + 17), 4);  // Copia 4 byte per 'sat' dal buffer[17]
+    memcpy((void *) &pole, (void *) (buffer + 21), 4);  // Copia 4 byte per 'pole' dal buffer[21]
+
+    // Imposta i valori estratti nei parametri del PID
+    setPidDiv(div);
+    setPidKp(kp);
+    setPidKi(ki);
+    setPidKd(kd);
+    setPidSat(sat);
+    setPidPole(pole);
+
+    // Restituisce la dimensione del payload
+    return size_payload();
 }
 
-uint8_t Communication::MsgPID::fill_payload(uint8_t *buffer){
-  float div;
-  float kp;
-  float ki;
-  float kd;
-  float sat;
-  float pole; 
-  div = getPidDiv();
-  kp = getPidKp();
-  ki = getPidKi();
-  kd = getPidKd();
-  sat = getPidSat();
-  pole = getPidPole();
-  memcpy((void *) (buffer+ 1), (void *) &div , 4);
-  memcpy((void *) (buffer+ 5), (void *) &kp  , 4);
-  memcpy((void *) (buffer+ 9), (void *) &ki  , 4);
-  memcpy((void *) (buffer+13), (void *) &kd  , 4);
-  memcpy((void *) (buffer+17), (void *) &sat , 4);
-  memcpy((void *) (buffer+21), (void *) &pole, 4);
-  return size_payload();
+uint8_t Communication::MsgPID::fill_payload(uint8_t *buffer) {
+    float div;  // Divisore del PID
+    float kp;   // Guadagno proporzionale
+    float ki;   // Guadagno integrale
+    float kd;   // Guadagno derivativo
+    float sat;  // Saturazione del PID
+    float pole; // Posizione del polo del filtro derivativo
+
+    // Ottiene i valori attuali del PID
+    div = getPidDiv();
+    kp = getPidKp();
+    ki = getPidKi();
+    kd = getPidKd();
+    sat = getPidSat();
+    pole = getPidPole();
+
+    // Scrive i valori nel buffer
+    memcpy((void *) (buffer +  1), (void *) &div , 4);  // Scrive 'div' in buffer[1]
+    memcpy((void *) (buffer +  5), (void *) &kp  , 4);  // Scrive 'kp' in buffer[5]
+    memcpy((void *) (buffer +  9), (void *) &ki  , 4);  // Scrive 'ki' in buffer[9]
+    memcpy((void *) (buffer + 13), (void *) &kd  , 4);  // Scrive 'kd' in buffer[13]
+    memcpy((void *) (buffer + 17), (void *) &sat , 4);  // Scrive 'sat' in buffer[17]
+    memcpy((void *) (buffer + 21), (void *) &pole, 4);  // Scrive 'pole' in buffer[21]
+
+    // Restituisce la dimensione del payload
+    return size_payload();
 }
 
 // ===== MsgACKC =====
@@ -815,24 +841,46 @@ uint8_t Communication::MsgACKC::size_payload(){
   return 2 + getCount();
 }
 
-uint8_t Communication::MsgACKC::from_payload(uint8_t *buffer){
-  for(uint8_t i = 0; i < getCount(); i++){
-    setEndStop(i, buffer[1] & (1 << i));
-    setDeltaEnc(i, ((buffer[2] & (1 << i)) ? -1 : +1) * ((int16_t) buffer[3+i]));
-  }
-  return size_payload();
+uint8_t Communication::MsgACKC::from_payload(uint8_t *buffer) {
+    // Itera su tutti gli elementi definiti da getCount()
+    for (uint8_t i = 0; i < getCount(); i++) {
+        // Estrae e imposta il valore di "EndStop" per l'indice i
+        // Il valore si trova nel bit i di buffer[1]
+        setEndStop(i, buffer[1] & (1 << i));
+
+        // Estrae e imposta il valore di "DeltaEnc" per l'indice i
+        // - Se il bit i di buffer[2] è impostato, il valore è negativo, altrimenti positivo
+        // - Il valore assoluto è memorizzato in buffer[3 + i]
+        setDeltaEnc(i, ((buffer[2] & (1 << i)) ? -1 : +1) * ((int16_t) buffer[3 + i]));
+    }
+
+    // Restituisce la dimensione del payload
+    return size_payload();
 }
 
-uint8_t Communication::MsgACKC::fill_payload(uint8_t *buffer){
-  buffer[1] = 0b00000000;
-  buffer[2] = 0b00000000;
-  for(uint8_t i = 0; i < getCount(); i++){
-    buffer[1] = buffer[1] | (getEndStop(i) << i);
-    buffer[2] = buffer[2] | ((getDeltaEnc(i) < 0) << i);
-    buffer[3+i] = (uint8_t) abs(getDeltaEnc(i));
-  }
-  return size_payload();
+
+uint8_t Communication::MsgACKC::fill_payload(uint8_t *buffer) {
+    // Inizializza i byte di stato a 0
+    buffer[1] = 0b00000000;
+    buffer[2] = 0b00000000;
+
+    // Itera su tutti gli elementi definiti da getCount()
+    for (uint8_t i = 0; i < getCount(); i++) {
+        // Imposta il bit corrispondente a "EndStop" in buffer[1]
+        buffer[1] |= (getEndStop(i) << i);
+
+        // Imposta il bit corrispondente a "DeltaEnc" in buffer[2]
+        // - Se il valore di getDeltaEnc(i) è negativo, il bit viene impostato a 1
+        buffer[2] |= ((getDeltaEnc(i) < 0) << i);
+
+        // Memorizza il valore assoluto di "DeltaEnc" in buffer[3 + i]
+        buffer[3 + i] = (uint8_t) abs(getDeltaEnc(i));
+    }
+
+    // Restituisce la dimensione del payload
+    return size_payload();
 }
+
 
 // ===== MsgACKS =====
 

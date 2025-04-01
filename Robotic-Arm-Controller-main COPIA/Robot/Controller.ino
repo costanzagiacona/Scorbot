@@ -232,18 +232,20 @@ Task tasks[6] = {task1, task2, task3, task4, task5, task6};
 void setup()
 {
   //Imposta la frequenza della PWM per il controllo della velocità
-  // PWMfreq::set(PWMfreq::MegaTimer3::FREQ_3921_16);
+  //PWMfreq::set(PWMfreq::MegaTimer3::FREQ_3921_16);
   // PWMfreq::set(PWMfreq::MegaTimer4::FREQ_3921_16);
 
   // inizializza serial per stm32
+  Serial.flush();
   Serial.begin(115200);
   //Serial2.begin(115200);
   //Serial3.begin(115200);
 
-  Serial.println("ciao");
+  Serial.write("\rciao set up\n");
+  Serial.println("Print set up\n");
   
 
-  // PWMfreq::set(PWMfreq::STM32Timer::TIMER3, PWMfreq::STM32Frequency::FREQ_3921_16);
+  PWMfreq::set(PWMfreq::STM32Timer::TIMER3, PWMfreq::STM32Frequency::FREQ_3921_16);
   // PWMfreq::set(PWMfreq::STM32Timer::TIMER4, PWMfreq::STM32Frequency::FREQ_3921_16);
 
   // //Avvia la comunicazione seriale a 115200 baud.
@@ -300,17 +302,16 @@ void loop()
   int IDmot = 5;
 
   /* DA USARE COME PROVA*/
-  Serial.println("Motore + \n");
-  //println("ciaooofhtfjutfujtyj");
-  job(time_us, IDmot, valore);
-  robotcomm.cycle(time_us); // Gestisce la comunicazione e aggiorna i controlli
-  delay(5000);
-  Serial.println("Motore - \n");
-  job(time_us, IDmot, -valore);
-  delay(5000);
-  Serial.println("Motore 0\n");
-  job(time_us, IDmot, 0);
-  delay(5000);
+  // Serial.println("Motore + \n");
+  // job(time_us, IDmot, valore);
+  // robotcomm.cycle(time_us); // Gestisce la comunicazione e aggiorna i controlli
+  // delay(5000);
+  // Serial.println("Motore - \n");
+  // job(time_us, IDmot, -valore);
+  // delay(5000);
+  // Serial.println("Motore 0\n");
+  // job(time_us, IDmot, 0);
+  // delay(5000);
 
   
  /*
