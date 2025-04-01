@@ -984,49 +984,50 @@ void RobotComm::setPinCtrl(PinControl *pin) {
 void RobotComm::cycle(uint32_t time_us){
   robot.update();
 
-  Communication::channel(channel);
-  Communication::Header header;
+  Communication::channel(channel);  // Seleziona il canale di comunicazione
+  Communication::Header header;  // Intestazione del messaggio
 
-  bool res = Communication::peek(&header);
+  bool res = Communication::peek(&header); // Legge l'intestazione del messaggio
   
-  if(res){
-    if(this->pin_comm != NULL) this->pin_comm->set(true);
+  if(res){  // Se c'è un messaggio disponibile
+    if(this->pin_comm != NULL) this->pin_comm->set(true);  // Imposta il pin di comunicazione per il debug
 
-    ticks_used = 0;
-    timeout.reset(time_us);
-    Communication::Code code = header.getCode();
+    ticks_used = 0;  // Resetta il contatore dei tick utilizzati
+    timeout.reset(time_us);  // Resetta il timer di timeout
+    Communication::Code code = header.getCode();  // Ottieni il codice del messaggio
+
     
-    if(Communication::isCtrl(code)) 
+    if(Communication::isCtrl(code))  // Se il messaggio è un comando di controllo
     {
-      if(robot.getStatus() == Robot::Status::Idle){
-        timer.reset(time_us);
+      if(robot.getStatus() == Robot::Status::Idle){  // Se il robot è inattivo
+        timer.reset(time_us);  // Resetta il timer
       }
       
-      if(robot.getStatus() == Robot::Status::Idle || timer.check(time_us)) {
-        if(this->pin_ctrl != NULL) this->pin_ctrl->set(true);
+      if(robot.getStatus() == Robot::Status::Idle || timer.check(time_us)) {  // Se il robot è inattivo o il timer è scaduto
+        if(this->pin_ctrl != NULL) this->pin_ctrl->set(true);  // Imposta il pin di controllo per il debug
 
         #if defined(DEBUG_COMMUNICATION) && defined(DEBUG_HIGH)
         DEBUG_SERIAL.print("Receiving Control ");
         #endif
         
-        switch(code){
+        switch(code){   // Gestisci i vari tipi di messaggio di controllo
           case Communication::Code::IDLE:
             {
               #if defined(DEBUG_COMMUNICATION) && defined(DEBUG_HIGH)
               DEBUG_SERIAL.println("IDLE");
               #endif
               Communication::MsgIDLE msg_idle;
-              msg_idle.setCount(robot.getSize());
-              res = Communication::rcv(&msg_idle, &timeout);
-              res = res && msg_idle.getCount() == robot.getSize();
+              msg_idle.setCount(robot.getSize()); // Imposta il numero di robot 
+              res = Communication::rcv(&msg_idle, &timeout);  // Riceve il messaggio
+              res = res && msg_idle.getCount() == robot.getSize();  // Verifica se il conteggio è corretto
               #if defined(DEBUG_COMMUNICATION) && defined(DEBUG_HIGH)
               DEBUG_SERIAL.print("  operation: ");
               DEBUG_SERIAL.println(res ? "Succeded" : "Failed");
               #endif
               if(!res) break;
-              robot.setStatus(Robot::Status::Idle);
+              robot.setStatus(Robot::Status::Idle); // Imposta il robot come inattivo
               #if defined(DEBUG_COMMUNICATION) && defined(DEBUG_HIGH) && defined(DEBUG_DATA)
-              DebugComm::print(&msg_idle, "", 1);
+              DebugComm::print(&msg_idle, "", 1); // Stampa il messaggio di debug
               #endif
               break;
             }
@@ -1037,20 +1038,20 @@ void RobotComm::cycle(uint32_t time_us){
               DEBUG_SERIAL.println("PWM");
               #endif
               Communication::MsgPWM msg_pwm;
-              msg_pwm.setCount(robot.getSize());
-              res = Communication::rcv(&msg_pwm, &timeout);
-              res = res && msg_pwm.getCount() == robot.getSize();
+              msg_pwm.setCount(robot.getSize());  // Imposta il numero di robot
+              res = Communication::rcv(&msg_pwm, &timeout); // Riceve il messaggio PWM
+              res = res && msg_pwm.getCount() == robot.getSize(); // Verifica se il conteggio è corretto
               #if defined(DEBUG_COMMUNICATION) && defined(DEBUG_HIGH)
               DEBUG_SERIAL.print("  operation: ");
               DEBUG_SERIAL.println(res ? "Succeded" : "Failed");
               #endif
               if(!res) break;
-              robot.setStatus(Robot::Status::Pwm);
-              for(uint8_t i = 0; i < robot.getSize(); i++) {
+              robot.setStatus(Robot::Status::Pwm);  // Imposta il robot in modalità PWM
+              for(uint8_t i = 0; i < robot.getSize(); i++) {  // Imposta i valori PWM per ogni motore
                 robot.setPwm(i, msg_pwm.getPwm(i));
               }
               #if defined(DEBUG_COMMUNICATION) && defined(DEBUG_HIGH) && defined(DEBUG_DATA)
-              DebugComm::print(&msg_pwm, "", 1);
+              DebugComm::print(&msg_pwm, "", 1);  // Stampa il messaggio di debug
               #endif
               break;
             }
@@ -1061,21 +1062,21 @@ void RobotComm::cycle(uint32_t time_us){
               DEBUG_SERIAL.println("REF");
               #endif
               Communication::MsgREF msg_ref;
-              msg_ref.setCount(robot.getSize());
-              res = Communication::rcv(&msg_ref, &timeout);
-              res = res && msg_ref.getCount() == robot.getSize();
+              msg_ref.setCount(robot.getSize());  // Imposta il numero di robot
+              res = Communication::rcv(&msg_ref, &timeout); // Riceve il messaggio di riferimento
+              res = res && msg_ref.getCount() == robot.getSize(); // Verifica se il conteggio è corretto
               #if defined(DEBUG_COMMUNICATION) && defined(DEBUG_HIGH)
               DEBUG_SERIAL.print("  operation: ");
               DEBUG_SERIAL.println(res ? "Succeded" : "Failed");
               #endif
               if(!res) break;
-              robot.setStatus(Robot::Status::Ref);
-              for(uint8_t i = 0; i < robot.getSize(); i++) {
+              robot.setStatus(Robot::Status::Ref);  // Imposta il robot in modalità riferimento
+              for(uint8_t i = 0; i < robot.getSize(); i++) {  // Imposta i target di riferimento per ogni motore
                 encoders_rcv[i] += msg_ref.getDeltaEnc(i);
                 robot.setTarget(i, encoders_rcv[i]);
               }
               #if defined(DEBUG_COMMUNICATION) && defined(DEBUG_HIGH) && defined(DEBUG_DATA)
-              DebugComm::print(&msg_ref, "", 1);
+              DebugComm::print(&msg_ref, "", 1);  // Stampa il messaggio di debug
               #endif
               break;
             }
@@ -1084,17 +1085,18 @@ void RobotComm::cycle(uint32_t time_us){
             #if defined(DEBUG_COMMUNICATION) && defined(DEBUG_HIGH)
             DEBUG_SERIAL.println("Unexpected");
             #endif
-            res = false;
+            res = false;  // Gestisce messaggi non riconosciuti
             break;
         }
         
-        if(res){
-          robot.compute();
-          robot.actuate();
+        if(res){  // Se l'operazione è riuscita
+          robot.compute();  // Calcola lo stato del robot
+          robot.actuate();  // Esegue l'atto del robot
 
           Communication::MsgACKC msg_ackc;
-          msg_ackc.setCount(robot.getSize());
-          for(uint8_t i = 0; i < robot.getSize(); i++){
+          msg_ackc.setCount(robot.getSize()); // Imposta il numero di robot
+          // Imposta i valori di fine corsa e gli encoder
+          for(uint8_t i = 0; i < robot.getSize(); i++){ 
             msg_ackc.setEndStop(i, robot.getEndStop(i));
             msg_ackc.setDeltaEnc(i, robot.getEncoder(i) - encoders_snd[i]);
           }
@@ -1103,16 +1105,17 @@ void RobotComm::cycle(uint32_t time_us){
           DEBUG_SERIAL.println("Sending Control ACKC");
           #endif
 
-          res = Communication::snd(&msg_ackc);
+          res = Communication::snd(&msg_ackc);  // Invia il messaggio di conferma
 
           #if defined(DEBUG_COMMUNICATION) && defined(DEBUG_HIGH)
           DEBUG_SERIAL.print("  operation: ");
           DEBUG_SERIAL.println(res ? "Succeded" : "Failed");
           #if defined(DEBUG_DATA)
-          DebugComm::print(&msg_ackc, "", 1);
+          DebugComm::print(&msg_ackc, "", 1); // Stampa il messaggio di debug
           #endif
           #endif
 
+          // Se l'invio è riuscito, aggiorna gli encoder
           if(res) {
             for(uint8_t i = 0; i < robot.getSize(); i++){
               encoders_snd[i] += msg_ackc.getDeltaEnc(i);
@@ -1143,39 +1146,39 @@ void RobotComm::cycle(uint32_t time_us){
           #endif
         }
 
-        if(this->pin_ctrl != NULL) this->pin_ctrl->set(false);
+        if(this->pin_ctrl != NULL) this->pin_ctrl->set(false);  // Resetta il pin di controllo per il debug
       }
     } 
     
-    else if(Communication::isSetup(code)) 
+    else if(Communication::isSetup(code)) // Se il messaggio è una configurazione
     {
-      robot.setStatus(Robot::Status::Idle, true);
+      robot.setStatus(Robot::Status::Idle, true); // Imposta il robot come inattivo
       Communication::MsgACKS msg_acks;
 
       #if defined(DEBUG_COMMUNICATION) && defined(DEBUG_HIGH)
       DEBUG_SERIAL.print("Receiving Setup ");
       #endif
 
-      switch(code){
+      switch(code){ // Gestisci i vari tipi di messaggio di configurazione
         case Communication::Code::ROBOT:
           {
             #if defined(DEBUG_COMMUNICATION) && defined(DEBUG_HIGH)
             DEBUG_SERIAL.println("ROBOT");
             #endif
             Communication::MsgROBOT msg_robot;
-            res = Communication::rcv(&msg_robot, &timeout);
-            res = res && msg_robot.getCount() == robot.getSize();
+            res = Communication::rcv(&msg_robot, &timeout); // Riceve il messaggio di configurazione del robot
+            res = res && msg_robot.getCount() == robot.getSize(); // Verifica se il conteggio è corretto
             #if defined(DEBUG_COMMUNICATION) && defined(DEBUG_HIGH)
             DEBUG_SERIAL.print("  operation: ");
             DEBUG_SERIAL.println(res ? "Succeded" : "Failed");
             #endif
             if(!res) break;
-            robot.setTimeSampling(msg_robot.getTimeSampling());
-            timer.setup(msg_robot.getTimeSampling());
-            timeout.setup(msg_robot.getTimeSampling());
-            ticks_allowed = msg_robot.getAllowedTicks();
+            robot.setTimeSampling(msg_robot.getTimeSampling()); // Imposta il tempo di campionamento
+            timer.setup(msg_robot.getTimeSampling()); // Configura il timer
+            timeout.setup(msg_robot.getTimeSampling()); // Configura il timeout
+            ticks_allowed = msg_robot.getAllowedTicks();  // Imposta il numero di tick consentiti
             #if defined(DEBUG_COMMUNICATION) && defined(DEBUG_HIGH) && defined(DEBUG_DATA)
-            DebugComm::print(&msg_robot, "", 1);
+            DebugComm::print(&msg_robot, "", 1);  // Stampa il messaggio di debug
             #endif
             msg_acks.setCount(robot.getSize());
             break;
