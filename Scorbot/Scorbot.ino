@@ -1,5 +1,5 @@
 #include "components.h"
-#include"Pid.h"
+#include "Pid.h"
 #include "util.h"
 
 //DEFINE PIN
@@ -98,89 +98,119 @@
 #define PID_6_POLE 0.0  // Motor 6 PID dirty derivative pole
 
 //Init pin e motori
-  // oggetto che rappresentano i motori, permettendo di attivarli, controllarne la velocità e leggere gli encoder.
-  PinControl enable = PinControl(MOTORS_EN);
+// oggetto che rappresentano i motori, permettendo di attivarli, controllarne la velocità e leggere gli encoder.
+PinControl enable = PinControl(MOTORS_EN);
 
-  PinControl mot1_ina = PinControl(MOTOR_1_INA);
-  PinControl mot1_inb = PinControl(MOTOR_1_INB);
-  PinControl mot1_pwm = PinControl(MOTOR_1_PWM);
-  PinMeasure mot1_cha = PinMeasure(MOTOR_1_CHA, true);
-  PinMeasure mot1_chb = PinMeasure(MOTOR_1_CHB, true);
-  PinMeasure mot1_end = PinMeasure(MOTOR_1_END);
+PinControl mot1_ina = PinControl(MOTOR_1_INA);
+PinControl mot1_inb = PinControl(MOTOR_1_INB);
+PinControl mot1_pwm = PinControl(MOTOR_1_PWM);
+PinMeasure mot1_cha = PinMeasure(MOTOR_1_CHA, true);
+PinMeasure mot1_chb = PinMeasure(MOTOR_1_CHB, true);
+PinMeasure mot1_end = PinMeasure(MOTOR_1_END);
 
-  PinControl mot2_ina = PinControl(MOTOR_2_INA);
-  PinControl mot2_inb = PinControl(MOTOR_2_INB);
-  PinControl mot2_pwm = PinControl(MOTOR_2_PWM);
-  PinMeasure mot2_cha = PinMeasure(MOTOR_2_CHA, true);
-  PinMeasure mot2_chb = PinMeasure(MOTOR_2_CHB, true);
-  PinMeasure mot2_end = PinMeasure(MOTOR_2_END);
+PinControl mot2_ina = PinControl(MOTOR_2_INA);
+PinControl mot2_inb = PinControl(MOTOR_2_INB);
+PinControl mot2_pwm = PinControl(MOTOR_2_PWM);
+PinMeasure mot2_cha = PinMeasure(MOTOR_2_CHA, true);
+PinMeasure mot2_chb = PinMeasure(MOTOR_2_CHB, true);
+PinMeasure mot2_end = PinMeasure(MOTOR_2_END);
 
-  PinControl mot3_ina = PinControl(MOTOR_3_INA);
-  PinControl mot3_inb = PinControl(MOTOR_3_INB);
-  PinControl mot3_pwm = PinControl(MOTOR_3_PWM);
-  PinMeasure mot3_cha = PinMeasure(MOTOR_3_CHA, true);
-  PinMeasure mot3_chb = PinMeasure(MOTOR_3_CHB, true);
-  PinMeasure mot3_end = PinMeasure(MOTOR_3_END);
+PinControl mot3_ina = PinControl(MOTOR_3_INA);
+PinControl mot3_inb = PinControl(MOTOR_3_INB);
+PinControl mot3_pwm = PinControl(MOTOR_3_PWM);
+PinMeasure mot3_cha = PinMeasure(MOTOR_3_CHA, true);
+PinMeasure mot3_chb = PinMeasure(MOTOR_3_CHB, true);
+PinMeasure mot3_end = PinMeasure(MOTOR_3_END);
 
-  PinControl mot4_ina = PinControl(MOTOR_4_INA);
-  PinControl mot4_inb = PinControl(MOTOR_4_INB);
-  PinControl mot4_pwm = PinControl(MOTOR_4_PWM);
-  PinMeasure mot4_cha = PinMeasure(MOTOR_4_CHA, true);
-  PinMeasure mot4_chb = PinMeasure(MOTOR_4_CHB, true);
-  PinMeasure mot4_end = PinMeasure(MOTOR_4_END);
+PinControl mot4_ina = PinControl(MOTOR_4_INA);
+PinControl mot4_inb = PinControl(MOTOR_4_INB);
+PinControl mot4_pwm = PinControl(MOTOR_4_PWM);
+PinMeasure mot4_cha = PinMeasure(MOTOR_4_CHA, true);
+PinMeasure mot4_chb = PinMeasure(MOTOR_4_CHB, true);
+PinMeasure mot4_end = PinMeasure(MOTOR_4_END);
 
-  PinControl mot5_ina = PinControl(MOTOR_5_INA);
-  PinControl mot5_inb = PinControl(MOTOR_5_INB);
-  PinControl mot5_pwm = PinControl(MOTOR_5_PWM);
-  PinMeasure mot5_cha = PinMeasure(MOTOR_5_CHA, true);
-  PinMeasure mot5_chb = PinMeasure(MOTOR_5_CHB, true);
-  PinMeasure mot5_end = PinMeasure(MOTOR_5_END);
+PinControl mot5_ina = PinControl(MOTOR_5_INA);
+PinControl mot5_inb = PinControl(MOTOR_5_INB);
+PinControl mot5_pwm = PinControl(MOTOR_5_PWM);
+PinMeasure mot5_cha = PinMeasure(MOTOR_5_CHA, true);
+PinMeasure mot5_chb = PinMeasure(MOTOR_5_CHB, true);
+PinMeasure mot5_end = PinMeasure(MOTOR_5_END);
 
-  PinControl mot6_ina = PinControl(MOTOR_6_INA);
-  PinControl mot6_inb = PinControl(MOTOR_6_INB);
-  PinControl mot6_pwm = PinControl(MOTOR_6_PWM);
-  PinMeasure mot6_cha = PinMeasure(MOTOR_6_CHA, true);
-  PinMeasure mot6_chb = PinMeasure(MOTOR_6_CHB, true);
-  PinMeasure mot6_end = PinMeasure(MOTOR_6_END);
+PinControl mot6_ina = PinControl(MOTOR_6_INA);
+PinControl mot6_inb = PinControl(MOTOR_6_INB);
+PinControl mot6_pwm = PinControl(MOTOR_6_PWM);
+PinMeasure mot6_cha = PinMeasure(MOTOR_6_CHA, true);
+PinMeasure mot6_chb = PinMeasure(MOTOR_6_CHB, true);
+PinMeasure mot6_end = PinMeasure(MOTOR_6_END);
 
-  Motor motor1 = Motor(mot1_ina, mot1_inb, mot1_pwm, mot1_cha, mot1_chb, mot1_end);
-  Motor motor2 = Motor(mot2_ina, mot2_inb, mot2_pwm, mot2_cha, mot2_chb, mot2_end);
-  Motor motor3 = Motor(mot3_ina, mot3_inb, mot3_pwm, mot3_cha, mot3_chb, mot3_end);
-  Motor motor4 = Motor(mot4_ina, mot4_inb, mot4_pwm, mot4_cha, mot4_chb, mot4_end);
-  Motor motor5 = Motor(mot5_ina, mot5_inb, mot5_pwm, mot5_cha, mot5_chb, mot5_end);
-  Motor motor6 = Motor(mot6_ina, mot6_inb, mot6_pwm, mot6_cha, mot6_chb, mot6_end);
+Motor motor1 = Motor(mot1_ina, mot1_inb, mot1_pwm, mot1_cha, mot1_chb, mot1_end);
+Motor motor2 = Motor(mot2_ina, mot2_inb, mot2_pwm, mot2_cha, mot2_chb, mot2_end);
+Motor motor3 = Motor(mot3_ina, mot3_inb, mot3_pwm, mot3_cha, mot3_chb, mot3_end);
+Motor motor4 = Motor(mot4_ina, mot4_inb, mot4_pwm, mot4_cha, mot4_chb, mot4_end);
+Motor motor5 = Motor(mot5_ina, mot5_inb, mot5_pwm, mot5_cha, mot5_chb, mot5_end);
+Motor motor6 = Motor(mot6_ina, mot6_inb, mot6_pwm, mot6_cha, mot6_chb, mot6_end);
 
 
 
 void setup() {
   //DA MODIFICARE
-  
-  analogWriteFrequency(1000);  // Imposta la frequenza PWM a 1 kHz
 
+  Serial.begin(115200);
+  enable.set(true);  // Abilita il ponte H o i driver dei motori
+  Serial.println(MOTORS_EN);
+  analogWriteFrequency(1000);  // (se richiesto per il PWM)
 }
 
 void loop() {
+
   // Aggiorna gli encoder per entrambi i motori
   motor1.updateEncoder();
-  motor2.updateEncoder();
+  //motor2.updateEncoder();
 
-  // Controllo motori: imposta la velocità (PWM)
-  int pwm_motor1 = 25;  // Velocità del primo motore (positivo per in avanti)
-  int pwm_motor2 = -25; // Velocità del secondo motore (negativo per all'indietro)
+  // ina false, inb true -> antiorario
+  mot1_ina.set(false); // digitalWrite 
+  mot1_ina.set(true);
+  // digitalWrite(MOTOR_1_INA, HIGH);
+  // digitalWrite(MOTOR_1_INB, LOW);
 
-  // Imposta il PWM per entrambi i motori
-  motor1.driveMotor(pwm_motor1);  // Imposta la velocità del primo motore
-  motor2.driveMotor(pwm_motor2);  // Imposta la velocità del secondo motore
 
-  // Verifica se i motori raggiungono l'endstop
-  if (motor1.isInEndStop() || motor2.isInEndStop()) {
-    // Fermiamo entrambi i motori se un endstop è attivato
-    motor1.driveMotor(0);
-    motor2.driveMotor(0);
-    Serial.println("Endstop raggiunto! I motori sono fermi.");
-  }
 
-  // Pausa per evitare che il loop sia troppo veloce (100ms)
-  delay(100);
+
+  // // Imposta la direzione del motore
+  // digitalWrite(MOTOR_1_INA, LOW);
+  // digitalWrite(MOTOR_1_INB, HIGH);
+  mot1_pwm.pwm(150);  // analogWrite
+  delay(500);
+  mot1_pwm.pwm(0);
+  delay(1000);
+
+
+  // // Aumenta gradualmente la velocità del motore
+  // for (int pwm = 0; pwm <= 255; pwm += 25) {
+  //     analogWrite(MOTOR_1_PWM, pwm);
+  //     delay(500);
+  // }
+
+  // // Ferma il motore per un attimo
+  // analogWrite(MOTOR_1_PWM, 0);
+  // delay(1000);
+
+  // // Controllo motori: imposta la velocità (PWM)
+  // int pwm_motor1 = 25;   // Velocità del primo motore (positivo per in avanti)
+  // int pwm_motor2 = -25;  // Velocità del secondo motore (negativo per all'indietro)
+
+  // // Imposta il PWM per entrambi i motori
+  // motor1.driveMotor(pwm_motor2, false);  // Imposta la velocità del primo motore
+  // //motor2.driveMotor(pwm_motor2);  // Imposta la velocità del secondo motore
+
+  // // Verifica se i motori raggiungono l'endstop
+  // if (motor1.isInEndStop()) {
+  //   // Fermiamo entrambi i motori se un endstop è attivato
+  //   motor1.driveMotor(0, true);
+  //   //motor2.driveMotor(0);
+  //   Serial.println("Endstop raggiunto! I motori sono fermi.");
+  // }
+
+  // // Pausa per evitare che il loop sia troppo veloce (100ms)
+  // delay(100);
 }
-

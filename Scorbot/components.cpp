@@ -1,6 +1,6 @@
 #include "components.h"
 #include <HardwareTimer.h>
-#include"Pid.h"
+#include "Pid.h"
 
 
 // ==================================================
@@ -234,9 +234,10 @@ void Motor::invertMotor(bool invert){
   this->motor_invert = invert;
 }
 
-void Motor::driveMotor(int16_t spwm){
+void Motor::driveMotor(int16_t spwm, bool invert){
   OperatingMode mode = OperatingMode::BRAKE_GND;
   spwm = constrain(spwm, -255, 255);
+  this->motor_invert = invert;
 
   if(spwm > 0) {
     mode = motor_invert ? OperatingMode::SPIN_CCW : OperatingMode::SPIN_CW;
@@ -277,267 +278,267 @@ bool Motor::isInEndStop(){
 // Robot
 // ==================================================
 
-Robot::Robot(PinControl &enable, uint8_t size, uint32_t ts_us)
-  : enable(enable) {
-  this->size = size;
-  this->ts = ts_us;
-  this->motors = (Motor**) malloc(size * sizeof(Motor*));
-  this->pids = (PID*) malloc(size * sizeof(PID));
+// Robot::Robot(PinControl &enable, uint8_t size, uint32_t ts_us)
+//   : enable(enable) {
+//   this->size = size;
+//   this->ts = ts_us;
+//   this->motors = (Motor**) malloc(size * sizeof(Motor*));
+//   this->pids = (PID*) malloc(size * sizeof(PID));
   
-  this->status = Status::Idle;
+//   this->status = Status::Idle;
 
-  this->pids_div = (float *) malloc(size * sizeof(float));
-  this->pids_kp = (float *) malloc(size * sizeof(float));
-  this->pids_ki = (float *) malloc(size * sizeof(float));
-  this->pids_kd = (float *) malloc(size * sizeof(float));
-  this->pids_sat = (float *) malloc(size * sizeof(float));
-  this->pids_pole = (float *) malloc(size * sizeof(float));
+//   this->pids_div = (float *) malloc(size * sizeof(float));
+//   this->pids_kp = (float *) malloc(size * sizeof(float));
+//   this->pids_ki = (float *) malloc(size * sizeof(float));
+//   this->pids_kd = (float *) malloc(size * sizeof(float));
+//   this->pids_sat = (float *) malloc(size * sizeof(float));
+//   this->pids_pole = (float *) malloc(size * sizeof(float));
 
-  this->mot_encs = (long *) malloc(size * sizeof(long));
-  this->mot_pwms = (int16_t *) malloc(size * sizeof(int16_t));
-  this->mot_refs = (long *) malloc(size * sizeof(long));
-  this->mot_ends = (bool *) malloc(size * sizeof(bool));
-  this->mot_acts = (int16_t *) malloc(size * sizeof(int16_t));
+//   this->mot_encs = (long *) malloc(size * sizeof(long));
+//   this->mot_pwms = (int16_t *) malloc(size * sizeof(int16_t));
+//   this->mot_refs = (long *) malloc(size * sizeof(long));
+//   this->mot_ends = (bool *) malloc(size * sizeof(bool));
+//   this->mot_acts = (int16_t *) malloc(size * sizeof(int16_t));
   
-  for(int i = 0; i < size; i++)
-  {
-    this->pids_div[i] = 1.0;
-    this->pids_kp[i] = 0.0;
-    this->pids_ki[i] = 0.0;
-    this->pids_kd[i] = 0.0;
-    this->pids_sat[i] = 0.0;
-    this->pids_pole[i] = 0.0;
+//   for(int i = 0; i < size; i++)
+//   {
+//     this->pids_div[i] = 1.0;
+//     this->pids_kp[i] = 0.0;
+//     this->pids_ki[i] = 0.0;
+//     this->pids_kd[i] = 0.0;
+//     this->pids_sat[i] = 0.0;
+//     this->pids_pole[i] = 0.0;
 
-    this->mot_encs[i] = 0;
-    this->mot_pwms[i] = 0;
-    this->mot_refs[i] = 0;
-    this->mot_ends[i] = false;
-    this->mot_acts[i] = 0;
-  }
+//     this->mot_encs[i] = 0;
+//     this->mot_pwms[i] = 0;
+//     this->mot_refs[i] = 0;
+//     this->mot_ends[i] = false;
+//     this->mot_acts[i] = 0;
+//   }
   
-  setStatus(Status::Idle);
-}
+//   setStatus(Status::Idle);
+// }
 
-Robot::~Robot() {
-  free(this->motors);
-  free(this->pids);
-  free(this->pids_div);
-  free(this->pids_kp);
-  free(this->pids_ki);
-  free(this->pids_kd);
-  free(this->pids_sat);
-  free(this->pids_pole);
-  free(this->mot_encs);
-  free(this->mot_pwms);
-  free(this->mot_refs);
-  free(this->mot_ends);
-  free(this->mot_acts);
-}
+// Robot::~Robot() {
+//   free(this->motors);
+//   free(this->pids);
+//   free(this->pids_div);
+//   free(this->pids_kp);
+//   free(this->pids_ki);
+//   free(this->pids_kd);
+//   free(this->pids_sat);
+//   free(this->pids_pole);
+//   free(this->mot_encs);
+//   free(this->mot_pwms);
+//   free(this->mot_refs);
+//   free(this->mot_ends);
+//   free(this->mot_acts);
+// }
 
-int Robot::getSize(){
-  return this->size;
-}
+// int Robot::getSize(){
+//   return this->size;
+// }
 
-Robot::Status Robot::getStatus(){
-  return this->status;
-}
+// Robot::Status Robot::getStatus(){
+//   return this->status;
+// }
 
-bool Robot::setStatus(Status status, bool reset){
-  if(this->status != status || reset){
-    resetPIDs();
-    resetActions();
-    actuate();
-    this->status = status;
-    return true;
-  } else {
-    return false;
-  }
-}
+// bool Robot::setStatus(Status status, bool reset){
+//   if(this->status != status || reset){
+//     resetPIDs();
+//     resetActions();
+//     actuate();
+//     this->status = status;
+//     return true;
+//   } else {
+//     return false;
+//   }
+// }
 
-uint32_t Robot::getTimeSampling(){
-  return this->ts;
-}
+// uint32_t Robot::getTimeSampling(){
+//   return this->ts;
+// }
 
-void Robot::setTimeSampling(uint32_t ts_us){
-  this->ts = ts_us;
-  for(uint8_t i = 0; i < size; i++){
-    initPID(i, pids_sat[i], pids_pole[i]);
-    setupPID(i, pids_div[i], pids_kp[i], pids_ki[i], pids_kd[i]);
-  }
-}
+// void Robot::setTimeSampling(uint32_t ts_us){
+//   this->ts = ts_us;
+//   for(uint8_t i = 0; i < size; i++){
+//     initPID(i, pids_sat[i], pids_pole[i]);
+//     setupPID(i, pids_div[i], pids_kp[i], pids_ki[i], pids_kd[i]);
+//   }
+// }
 
-void Robot::setMotor(uint8_t index, Motor &motor){
-  if(index < size) this->motors[index] = &motor;    
-}
+// void Robot::setMotor(uint8_t index, Motor &motor){
+//   if(index < size) this->motors[index] = &motor;    
+// }
 
-void Robot::invertMotor(uint8_t index, bool inv){
-  if(index < size) this->motors[index]->invertMotor(inv);
-}
+// void Robot::invertMotor(uint8_t index, bool inv){
+//   if(index < size) this->motors[index]->invertMotor(inv);
+// }
 
-void Robot::initPID(uint8_t index, float sat, float pole){
-  if(index < size){
-    this->pids_sat[index] = sat;
-    this->pids_pole[index] = pole;
-    this->pids[index].init((float) ts / 1000000.0, 0.0, sat, 0.0, 0.0, 0.0, pole, true);
-  }
-}
+// void Robot::initPID(uint8_t index, float sat, float pole){
+//   if(index < size){
+//     this->pids_sat[index] = sat;
+//     this->pids_pole[index] = pole;
+//     this->pids[index].init((float) ts / 1000000.0, 0.0, sat, 0.0, 0.0, 0.0, pole, true);
+//   }
+// }
 
-void Robot::setupPID(uint8_t index, float div, float kp, float ki, float kd){
-  if(index < size){
-    this->pids_div[index] = div;
-    this->pids_kp[index] = kp;
-    this->pids_ki[index] = ki;
-    this->pids_kd[index] = kd;
-    this->pids[index].setup(kp, ki, kd);
-  }
-}
+// void Robot::setupPID(uint8_t index, float div, float kp, float ki, float kd){
+//   if(index < size){
+//     this->pids_div[index] = div;
+//     this->pids_kp[index] = kp;
+//     this->pids_ki[index] = ki;
+//     this->pids_kd[index] = kd;
+//     this->pids[index].setup(kp, ki, kd);
+//   }
+// }
 
-void Robot::resetPID(uint8_t index, float xi, float xd){
-  if(index < size) this->pids[index].reset(xi, xd);
-}
+// void Robot::resetPID(uint8_t index, float xi, float xd){
+//   if(index < size) this->pids[index].reset(xi, xd);
+// }
 
-void Robot::resetPID(uint8_t index){
-  resetPID(index, 0.0, 0.0);
-}
+// void Robot::resetPID(uint8_t index){
+//   resetPID(index, 0.0, 0.0);
+// }
 
-void Robot::resetPIDs(){
-  for(uint8_t i = 0; i < size; i++) resetPID(i);
-}
+// void Robot::resetPIDs(){
+//   for(uint8_t i = 0; i < size; i++) resetPID(i);
+// }
 
-void Robot::updateEncoder(uint8_t index){
-  if(index < size) {
-    motors[index]->updateEncoder();
-    mot_encs[index] = motors[index]->getEncoder();
-  } 
-}
+// void Robot::updateEncoder(uint8_t index){
+//   if(index < size) {
+//     motors[index]->updateEncoder();
+//     mot_encs[index] = motors[index]->getEncoder();
+//   } 
+// }
 
-void Robot::updateEncoders(){
-  for(int i = 0; i < size; i++) updateEncoder(i);
-}
+// void Robot::updateEncoders(){
+//   for(int i = 0; i < size; i++) updateEncoder(i);
+// }
 
-void Robot::invertEncoder(uint8_t index, bool inv){
-  if(index < size) this->motors[index]->invertEncoder(inv);
-}
+// void Robot::invertEncoder(uint8_t index, bool inv){
+//   if(index < size) this->motors[index]->invertEncoder(inv);
+// }
 
-long Robot::getEncoder(uint8_t index){
-  return (index < size) ? mot_encs[index] : 0;
-}
+// long Robot::getEncoder(uint8_t index){
+//   return (index < size) ? mot_encs[index] : 0;
+// }
 
-void Robot::setEncoder(uint8_t index, long value){
-  if(index < size) {
-    motors[index]->setEncoder(value);
-    mot_encs[index] = value;
-  }
-}
+// void Robot::setEncoder(uint8_t index, long value){
+//   if(index < size) {
+//     motors[index]->setEncoder(value);
+//     mot_encs[index] = value;
+//   }
+// }
 
-void Robot::resetEncoder(uint8_t index){
-  if(index < size) setEncoder(index, 0);
-}
+// void Robot::resetEncoder(uint8_t index){
+//   if(index < size) setEncoder(index, 0);
+// }
 
-void Robot::resetEncoders(){
-  for(int i = 0; i < size; i++) resetEncoder(i);
-}
+// void Robot::resetEncoders(){
+//   for(int i = 0; i < size; i++) resetEncoder(i);
+// }
 
-int16_t Robot::getPwm(uint8_t index){
-  return (index < size) ? mot_pwms[index] : 0;
-}
+// int16_t Robot::getPwm(uint8_t index){
+//   return (index < size) ? mot_pwms[index] : 0;
+// }
 
-void Robot::setPwm(uint8_t index, int16_t pwm){
-  if(index < size) mot_pwms[index] = constrain(pwm, -255, 255);
-}
+// void Robot::setPwm(uint8_t index, int16_t pwm){
+//   if(index < size) mot_pwms[index] = constrain(pwm, -255, 255);
+// }
 
-void Robot::resetPwm(uint8_t index){
-  setPwm(index, 0);
-}
+// void Robot::resetPwm(uint8_t index){
+//   setPwm(index, 0);
+// }
 
-void Robot::resetPwms(){
-  for(int i = 0; i < size; i++) setPwm(i, 0);
-}
+// void Robot::resetPwms(){
+//   for(int i = 0; i < size; i++) setPwm(i, 0);
+// }
 
-long Robot::getTarget(uint8_t index){
-  return (index < size) ? mot_refs[index] : 0;
-}
+// long Robot::getTarget(uint8_t index){
+//   return (index < size) ? mot_refs[index] : 0;
+// }
 
-void Robot::setTarget(uint8_t index, long value){
-  if(index < size) mot_refs[index] = value;
-}
+// void Robot::setTarget(uint8_t index, long value){
+//   if(index < size) mot_refs[index] = value;
+// }
 
-void Robot::resetTarget(uint8_t index){
-  setTarget(index, 0);
-}
+// void Robot::resetTarget(uint8_t index){
+//   setTarget(index, 0);
+// }
 
-void Robot::resetTargets(){
-  for(uint8_t i = 0; i < size; i++) resetTarget(i);
-}
+// void Robot::resetTargets(){
+//   for(uint8_t i = 0; i < size; i++) resetTarget(i);
+// }
 
-void Robot::updateEndStop(uint8_t index){
-  if(index < size) mot_ends[index] = motors[index]->isInEndStop();
-}
+// void Robot::updateEndStop(uint8_t index){
+//   if(index < size) mot_ends[index] = motors[index]->isInEndStop();
+// }
 
-void Robot::updateEndStops(){
-  for(uint8_t i = 0; i < size; i++) updateEndStop(i);
-}
+// void Robot::updateEndStops(){
+//   for(uint8_t i = 0; i < size; i++) updateEndStop(i);
+// }
 
-bool Robot::getEndStop(uint8_t index){
-  return (index < size) ? mot_ends[index] : false;
-}
+// bool Robot::getEndStop(uint8_t index){
+//   return (index < size) ? mot_ends[index] : false;
+// }
 
-int16_t Robot::getAction(uint8_t index){
-  return (index < size) ? mot_acts[index] : 0;
-}
+// int16_t Robot::getAction(uint8_t index){
+//   return (index < size) ? mot_acts[index] : 0;
+// }
 
-void Robot::setAction(uint8_t index, int16_t act){
-  if(index < size)  mot_acts[index] = constrain(act, -255, 255);
-}
+// void Robot::setAction(uint8_t index, int16_t act){
+//   if(index < size)  mot_acts[index] = constrain(act, -255, 255);
+// }
 
-void Robot::resetAction(uint8_t index){
-  setAction(index, 0);
-}
+// void Robot::resetAction(uint8_t index){
+//   setAction(index, 0);
+// }
 
-void Robot::resetActions(){
-  for(uint8_t i = 0; i < size; i++) resetAction(i);
-}
+// void Robot::resetActions(){
+//   for(uint8_t i = 0; i < size; i++) resetAction(i);
+// }
 
-void Robot::enableMotors(){
-  setStatus(Status::Idle, true);
-  enable.set(true);
-}
+// void Robot::enableMotors(){
+//   setStatus(Status::Idle, true);
+//   enable.set(true);
+// }
 
-void Robot::disableMotors(){
-  setStatus(Status::Idle, true);
-  enable.set(false);
-}
+// void Robot::disableMotors(){
+//   setStatus(Status::Idle, true);
+//   enable.set(false);
+// }
 
-void Robot::update(){
-  updateEncoders();
-  updateEndStops();
-}
+// void Robot::update(){
+//   updateEncoders();
+//   updateEndStops();
+// }
 
-void Robot::compute(){
-  switch(status){
-    case Status::Idle:
-      for(uint8_t i = 0; i < size; i++) mot_acts[i] = 0;
-      break;
+// void Robot::compute(){
+//   switch(status){
+//     case Status::Idle:
+//       for(uint8_t i = 0; i < size; i++) mot_acts[i] = 0;
+//       break;
 
-    case Status::Pwm:
-      for(uint8_t i = 0; i < size; i++) mot_acts[i] = mot_pwms[i];
-      break;
+//     case Status::Pwm:
+//       for(uint8_t i = 0; i < size; i++) mot_acts[i] = mot_pwms[i];
+//       break;
 
-    case Status::Ref:
-      for(uint8_t i = 0; i < size; i++) mot_acts[i] = pids[i].evolve(((float) (mot_refs[i] - mot_encs[i])) / ((pids_div[i] == 0) ? 1.0 : pids_div[i]));
-      break;
-  }
-}
+//     case Status::Ref:
+//       for(uint8_t i = 0; i < size; i++) mot_acts[i] = pids[i].evolve(((float) (mot_refs[i] - mot_encs[i])) / ((pids_div[i] == 0) ? 1.0 : pids_div[i]));
+//       break;
+//   }
+// }
 
-void Robot::actuate(){
-  for(int i = 0; i < size; i++) motors[i]->driveMotor(mot_acts[i]);
-}
+// void Robot::actuate(){
+//   for(int i = 0; i < size; i++) motors[i]->driveMotor(mot_acts[i]);
+// }
 
-void Robot::reset(){
-  resetPIDs();
-  resetEncoders();
-  resetPwms();
-  resetTargets();
-  resetActions();
-  setStatus(Status::Idle, true);
-}
+// void Robot::reset(){
+//   resetPIDs();
+//   resetEncoders();
+//   resetPwms();
+//   resetTargets();
+//   resetActions();
+//   setStatus(Status::Idle, true);
+// }
