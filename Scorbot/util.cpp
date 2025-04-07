@@ -1,4 +1,5 @@
 #include "util.h"
+#include "task.h"
 
 // ==================================================
 // Functions
@@ -143,3 +144,50 @@ bool Timer::check(unsigned long time){
     return false;
   }
 }
+
+// gestione dei tick periodici
+// Dichiarazioni delle variabili globali
+volatile unsigned long ticks = 0;  // Contatore dei tick
+
+// Funzione ISR per il timer
+void isr_tick() {
+    ticks++;  // Incrementa il contatore dei tick
+    // Eventuale gestione dei task periodici
+    check_periodic_tasks();
+}
+
+// Funzione di inizializzazione del timer
+void init_ticks() {
+    noInterrupts();  // Disabilita gli interrupt durante la configurazione
+
+    // Configurazione del timer DMTimer0 (Assumiamo che il modulo sia già attivato)
+    // Non è necessario registrare ISR in quanto lo facciamo direttamente in Arduino
+    // Codice per inizializzare il timer hardware su STM32
+
+    // Impostazioni del timer (simile al setup del timer hardware)
+    // Imposta il valore del timer per ottenere il tick desiderato
+    // Esegui altre configurazioni necessarie per STM32
+
+    interrupts();  // Abilita gli interrupt dopo la configurazione
+
+    // Avvio del timer (sostituito con il codice adatto alla tua scheda)
+    // (esempio di una configurazione generica per il timer su STM32)
+    TIM2->CR1 |= TIM_CR1_CEN;  // Abilita il timer (modifica TIM2 per il tuo caso)
+    TIM2->ARR = 1000;  // Imposta il periodo del timer
+    TIM2->PSC = 72 - 1;  // Imposta il prescaler per ottenere l'intervallo di tempo desiderato
+}
+
+void panic0(void) {
+    // Stampa il messaggio di errore sulla seriale
+    Serial.begin(115200);
+    while (!Serial);  // Aspetta che la connessione seriale sia pronta
+    Serial.println("PANIC: Something went wrong, program terminating.");
+    
+    // Disabilita interruzioni (se necessario) e ferma l'esecuzione
+    noInterrupts();  // Disabilita le interruzioni
+    while (1) {
+        // Ciclo infinito per fermare il programma
+        // Puoi aggiungere qui altre azioni, come un blink di un LED per segnalare l'errore
+    }
+}
+

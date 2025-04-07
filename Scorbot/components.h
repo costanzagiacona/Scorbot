@@ -130,7 +130,7 @@ public:
   void updateEncoder();             // Update encoder ticks
 
   void invertMotor(bool invert);    // Invert physical spin direction of the motor
-  void driveMotor(int16_t spwm, bool invert);      // Assign pwm with sign for spin direction
+  void driveMotor(int16_t spwm);      // Assign pwm with sign for spin direction
 
   bool isInEndStop();               // Check if motor is at endstop
 

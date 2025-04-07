@@ -39,4 +39,16 @@ private:
 };
 
 
+// Dichiarazione della variabile volatile che tiene traccia dei tick
+extern volatile unsigned long ticks;
+
+// Funzione ISR per il timer
+void isr_tick(void);
+
+// Funzione di inizializzazione dei tick
+void init_ticks(void);
+
+void panic0(void);
+
+
 #endif  // UTIL_H
