@@ -170,7 +170,7 @@ void setup() {
 
   // Inizializzazione delle risorse
   Serial.begin(115200);  // Inizializza la comunicazione seriale (opzionale, utile per debug)
-
+  Serial.println("setup");
   // Inizializza il taskset
   init_taskset();
 
@@ -178,14 +178,17 @@ void setup() {
   //create_task(led_toggle, NULL, 10, 0, 100, "LED Task");
 
   // Crea il task per muovere il motore
-  create_task(moveMotor, &args, 10, 0, 12, "MotorMoveTask");  //antiorario
-  create_task(moveMotor, &args1, 10, 0, 10, "MotorMoveTask"); //orario
+  create_task(moveMotor, &args, 10, 0, 12, "MotorMoveTaskCounterClockwise");  //antiorario
+  create_task(moveMotor, &args1, 10, 0, 10, "MotorMoveTaskClockwise"); //orario
 }
 
 void loop() {
+
+  //Serial.println("loop");
   // Esegui i task periodici
   check_periodic_tasks();
   run_periodic_tasks();
+  //moveMotor(&args);
   //delay(5000);
  
   // Ottieni il tempo attuale
