@@ -155,8 +155,14 @@ void led_toggle(void *arg) {
   digitalWrite(LED_BUILTIN, !digitalRead(LED_BUILTIN));
   Serial.println("Task LED eseguito!");
 }
+
+
 // Crea la struttura per passare i parametri (PWM e Motor)
-motor_task_args args = { -200, motor1 };  // Imposta PWM a 100 per il motore
+motor_task_args args = { 200, motor1 };  // Imposta PWM a 100 per il motore
+
+unsigned long previousMillis = 0;  // Variabile per memorizzare l'ultimo tempo in cui un task è stato eseguito
+const long interval = 100;         // Intervallo in millisecondi per eseguire il task (1 secondo)
+ 
 
 void setup() {
   //DA MODIFICARE
@@ -168,18 +174,27 @@ void setup() {
   init_taskset();
 
 
-  //create_task(led_toggle, NULL, 10, 0, 10, "LED Task");
+  //create_task(led_toggle, NULL, 10, 0, 100, "LED Task");
 
   // Crea il task per muovere il motore
-  create_task(moveMotor, &args, 20, 0, 2, "MotorMoveTask");
+  create_task(moveMotor, &args, 10, 0, 10, "MotorMoveTask");
 }
 
 void loop() {
-  //moveMotor(&args);
-  check_periodic_tasks();
   // Esegui i task periodici
-  run_periodic_tasks();  // Esegue il task con la priorità più alta
-
-  // Eventuali altre logiche
-  delay(1);  // Pausa breve per evitare di sovraccaricare la CPU
+  check_periodic_tasks();
+  run_periodic_tasks();
+  //delay(5000);
+ 
+  // Ottieni il tempo attuale
+  unsigned long currentMillis = millis();
+ 
+  // Controlla se è passato l'intervallo per eseguire un task periodico
+  if (currentMillis - previousMillis >= interval) {
+    // Salva l'ultimo tempo
+    previousMillis = currentMillis;
+ 
+    // Esegui il task del motore
+    run_periodic_tasks();
+  }
 }

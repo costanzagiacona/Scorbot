@@ -75,7 +75,7 @@ int create_task(void (*job)(void *), void *arg, int period, int delay, int prior
 }
 
 void check_periodic_tasks(void) {
-    uint32_t now = ticks; // Ottieni il valore attuale del timer globale (o ticks)
+    uint32_t now = millis(); // Ottieni il valore attuale del timer globale (o ticks)
     struct task *f;            // Puntatore alla struttura del task
     int i;                     // Variabile per l'indice nel ciclo
 
@@ -139,6 +139,7 @@ void run_periodic_tasks(void) {
         // Decrementa il contatore dei task rilasciati (un task è stato eseguito)
         best->released--;
     }
+      delay(5000); // questo delay serve per far eseguire il movimento del motore, altrimenti non visibile 
 }
 
 
@@ -146,7 +147,7 @@ void run_periodic_tasks(void) {
 // Funzione per muovere il motore, adattata per lavorare con void *
 void moveMotor(void *arg) {
   motor_task_args *args = (motor_task_args *)arg;
-  
+
   if (args->pwm > 0) {
     args->motor.driveMotor(args->pwm);  // Muove il motore in senso orario
   } else if (args->pwm < 0) {
@@ -154,6 +155,7 @@ void moveMotor(void *arg) {
   } else {
     args->motor.driveMotor(0);  // Ferma il motore
   }
+  
 }
 
 // Funzione per leggere gli encoder
