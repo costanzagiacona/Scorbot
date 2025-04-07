@@ -151,87 +151,35 @@ Motor motor4 = Motor(mot4_ina, mot4_inb, mot4_pwm, mot4_cha, mot4_chb, mot4_end)
 Motor motor5 = Motor(mot5_ina, mot5_inb, mot5_pwm, mot5_cha, mot5_chb, mot5_end);
 Motor motor6 = Motor(mot6_ina, mot6_inb, mot6_pwm, mot6_cha, mot6_chb, mot6_end);
 
-
+void led_toggle(void *arg) {
+  digitalWrite(LED_BUILTIN, !digitalRead(LED_BUILTIN));
+  Serial.println("Task LED eseguito!");
+}
+// Crea la struttura per passare i parametri (PWM e Motor)
+motor_task_args args = { -200, motor1 };  // Imposta PWM a 100 per il motore
 
 void setup() {
   //DA MODIFICARE
 
-  Serial.begin(115200);
-  enable.set(true);  // Abilita il ponte H o i driver dei motori
-  Serial.println(MOTORS_EN);
-  analogWriteFrequency(1000);  // (se richiesto per il PWM)
+  // Inizializzazione delle risorse
+  Serial.begin(115200);  // Inizializza la comunicazione seriale (opzionale, utile per debug)
 
-  motor1.setEncoder(0);          // Inizializza il contatore encoder
-  motor1.invertMotor(false);     // Inverti se necessario
-  motor1.invertEncoder(false);   // Inverti se necessario
+  // Inizializza il taskset
+  init_taskset();
+
+
+  //create_task(led_toggle, NULL, 10, 0, 10, "LED Task");
+
+  // Crea il task per muovere il motore
+  create_task(moveMotor, &args, 20, 0, 2, "MotorMoveTask");
 }
 
 void loop() {
+  //moveMotor(&args);
+  check_periodic_tasks();
+  // Esegui i task periodici
+  run_periodic_tasks();  // Esegue il task con la priorità più alta
 
-  // // Aggiorna gli encoder per entrambi i motori
-  //motor1.updateEncoder();
-  // //motor2.updateEncoder();
-
-  // // ina false, inb true -> antiorario
-  // mot1_ina.set(false); // digitalWrite 
-  // mot1_ina.set(true);
-  // // digitalWrite(MOTOR_1_INA, HIGH);
-  // // digitalWrite(MOTOR_1_INB, LOW);
-
-
-
-
-  // // // Imposta la direzione del motore
-  // // digitalWrite(MOTOR_1_INA, LOW);
-  // // digitalWrite(MOTOR_1_INB, HIGH);
-  // mot1_pwm.pwm(150);  // analogWrite
-  // delay(500);
-  // mot1_pwm.pwm(0);
-  // delay(1000);
-
-
-  // // Aumenta gradualmente la velocità del motore
-  // for (int pwm = 0; pwm <= 255; pwm += 25) {
-  //     analogWrite(MOTOR_1_PWM, pwm);
-  //     delay(500);
-  // }
-
-  // // Ferma il motore per un attimo
-  // analogWrite(MOTOR_1_PWM, 0);
-  // delay(1000);
-
-  // Controllo motori: imposta la velocità (PWM)
-  // int pwm_motor1 = 200;   // Velocità del primo motore (positivo per in avanti)
-  // int pwm_motor2 = -100;  // Velocità del secondo motore (negativo per all'indietro)
-
-  // // Imposta il PWM per entrambi i motori
-  // motor1.driveMotor(-pwm_motor1);  // Imposta la velocità del primo motore
-  // //motor2.driveMotor(pwm_motor2);  // Imposta la velocità del secondo motore
-
-  // // Verifica se i motori raggiungono l'endstop
-  // if (motor1.isInEndStop()) {
-  //   // Fermiamo entrambi i motori se un endstop è attivato
-  //   motor1.driveMotor(0);
-  //   //motor2.driveMotor(0);
-  //   Serial.println("Endstop raggiunto! I motori sono fermi.");
-  // }
-
-  // // Pausa per evitare che il loop sia troppo veloce (100ms)
-  // delay(100);
-
-  Serial.println("Motore avanti");
-  motor1.driveMotor(150);  // Valore positivo => avanti
-  delay(2000);
-
-  Serial.println("Stop");
-  motor1.driveMotor(0);  // Ferma il motore
-  delay(5000);
-
-  Serial.println("Motore indietro");
-  motor1.driveMotor(-150);  // Valore negativo => indietro
-  delay(2000);
-
-  Serial.println("Stop");
-  motor1.driveMotor(0);
-  delay(5000);
+  // Eventuali altre logiche
+  delay(1);  // Pausa breve per evitare di sovraccaricare la CPU
 }

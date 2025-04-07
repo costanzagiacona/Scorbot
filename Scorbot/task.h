@@ -32,9 +32,15 @@ int create_task(void (*job)(void *), void *arg, int period, int delay, int prior
 void check_periodic_tasks(void);                // Controlla i task periodici
 int time_after_eq(unsigned long time1, unsigned long time2); // Funzione di confronto tra due tempi
 struct task *select_best_task(void);            // Seleziona il task con la priorità più alta
+void run_periodic_tasks(void);
 
 // Funzioni per i job dei task
-void moveMotor(int pwm, Motor &motor);          // Muove il motore
-void read_motor_encoders(void *arg);            // Legge gli encoder dei motori
+// Struttura per passare i parametri al task
+struct motor_task_args {
+  int pwm;        // Valore del PWM
+  Motor motor;    // Oggetto del motore
+};
+void moveMotor(void *arg);          // Muove il motore
+void read_motor_encoders(void *arg);          // Legge gli encoder dei motori
 
 #endif // TASKS_H

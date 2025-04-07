@@ -124,15 +124,35 @@ struct task *select_best_task(void) {
 }
 
 
+void run_periodic_tasks(void) {
+    struct task *best;
+    unsigned long state = globalreleases; // Memorizza lo stato attuale dei task rilasciati
+
+    // Seleziona il task con la priorità più alta da eseguire
+    best = select_best_task();
+
+    // Se un task valido è stato trovato e il numero di rilasci non è cambiato
+    if (best != NULL && state == globalreleases) {
+        // Esegui il job associato al task
+        best->job(best->arg);
+        
+        // Decrementa il contatore dei task rilasciati (un task è stato eseguito)
+        best->released--;
+    }
+}
+
 
 // JOB per il movimento dei motori
-void moveMotor(int pwm, Motor &motor) {
-  if (pwm > 0) {
-    motor.driveMotor(pwm);  // Muove il motore in senso orario
-  } else if (pwm < 0) {
-    motor.driveMotor(pwm);  // Muove il motore in senso antiorario
+// Funzione per muovere il motore, adattata per lavorare con void *
+void moveMotor(void *arg) {
+  motor_task_args *args = (motor_task_args *)arg;
+  
+  if (args->pwm > 0) {
+    args->motor.driveMotor(args->pwm);  // Muove il motore in senso orario
+  } else if (args->pwm < 0) {
+    args->motor.driveMotor(args->pwm);  // Muove il motore in senso antiorario
   } else {
-    motor.driveMotor(0);  // Ferma il motore
+    args->motor.driveMotor(0);  // Ferma il motore
   }
 }
 
