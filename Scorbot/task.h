@@ -1,15 +1,13 @@
-#ifndef TASK_H
-#define TASK_H
+#ifndef TASKS_H
+#define TASKS_H
 
-#include <stdint.h>
-#include "util.h"
 #include "components.h"
+#include "Pid.h"
+#include "task.h"
+#include "util.h"
 
-// Definizione delle costanti
+// Definizione del numero massimo di task
 #define MAX_NUM_TASKS 30
-extern int num_tasks;
-extern struct task taskset[MAX_NUM_TASKS];
-extern volatile uint32_t globalreleases;
 
 // Task
 struct task {
@@ -23,28 +21,20 @@ struct task {
   const char *name;      // nome del task, utile per debug
 };
 
+// Variabili globali
+extern int num_tasks;
+extern struct task taskset[MAX_NUM_TASKS];
+extern volatile uint32_t globalreleases;
 
-// Inizializza la task set
-void init_taskset(void);
+// Funzioni per la gestione dei task
+void init_taskset(void);                        // Inizializza il set di task
+int create_task(void (*job)(void *), void *arg, int period, int delay, int priority, const char *name); // Crea un nuovo task
+void check_periodic_tasks(void);                // Controlla i task periodici
+int time_after_eq(unsigned long time1, unsigned long time2); // Funzione di confronto tra due tempi
+struct task *select_best_task(void);            // Seleziona il task con la priorità più alta
 
-// Crea un nuovo task
-int create_task(void (*job)(void *), void *arg, int period, int delay, int priority, const char *name);
+// Funzioni per i job dei task
+void moveMotor(int pwm, Motor &motor);          // Muove il motore
+void read_motor_encoders(void *arg);            // Legge gli encoder dei motori
 
-// Controlla i task periodici
-void check_periodic_tasks(void);
-
-// Funzione di utilità per il confronto di tempi
-int time_after_eq(unsigned long time1, unsigned long time2);
-
-// Seleziona il miglior task da eseguire
-static inline struct task *select_best_task(void);
-
-// MOVIMENTO
-// Funzione che gestisce il movimento del motore
-void moveMotor(int pwm, Motor &motor);
-
-// ENCODER
-// Funzione per leggere gli encoder
-void read_encoders(void *arg)
-
-#endif // TASK_MANAGER_H
+#endif // TASKS_H

@@ -97,7 +97,7 @@ int time_after_eq(unsigned long time1, unsigned long time2) {
 }
 
 
-static inline struct task *select_best_task(void) {
+struct task *select_best_task(void) {
     uint32_t maxprio = UINT32_MAX;  // Definisci la massima priorità possibile
     struct task *best = NULL;
     struct task *f;
