@@ -43,4 +43,11 @@ struct motor_task_args {
 void moveMotor(void *arg);          // Muove il motore
 void read_motor_encoders(void *arg);          // Legge gli encoder dei motori
 
+enum RobotState {
+  IDLE,
+  MOVING,
+  IO
+};
+void state_machine(void *arg);
+
 #endif // TASKS_H

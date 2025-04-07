@@ -149,6 +149,7 @@ bool Timer::check(unsigned long time){
 // Dichiarazioni delle variabili globali
 volatile unsigned long ticks = 0;  // Contatore dei tick
 
+/*
 // Funzione ISR per il timer
 void isr_tick() {
     ticks++;  // Incrementa il contatore dei tick
@@ -176,7 +177,7 @@ void init_ticks() {
     TIM2->ARR = 1000;  // Imposta il periodo del timer
     TIM2->PSC = 72 - 1;  // Imposta il prescaler per ottenere l'intervallo di tempo desiderato
 }
-
+*/
 void panic0(void) {
     // Stampa il messaggio di errore sulla seriale
     Serial.begin(115200);

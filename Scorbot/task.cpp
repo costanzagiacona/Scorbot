@@ -139,7 +139,7 @@ void run_periodic_tasks(void) {
         // Decrementa il contatore dei task rilasciati (un task è stato eseguito)
         best->released--;
     }
-      delay(5000); // questo delay serve per far eseguire il movimento del motore, altrimenti non visibile 
+      delay(4000); // questo delay serve per far eseguire il movimento del motore, altrimenti non visibile 
 }
 
 
@@ -166,3 +166,45 @@ void read_motor_encoders(void *arg) {
     // utilizzare i metodi di Motor come updateEncoder
     motor->updateEncoder();
 }
+
+// MACCHINA A STATI
+RobotState currentState = IDLE;
+unsigned long stateEntryTime = 0;
+
+// Struttura per passare dati ai job
+extern motor_task_args motorArgs;  // Suppongo tu lo abbia definito altrove
+
+void state_machine(void *arg) {
+  switch (currentState) {
+    case IDLE:
+      Serial.println("Stato: IDLE");
+      // Logica di uscita dall'IDLE (es. comandi, trigger, timeout, ecc.)
+      if (ENABLE == LOW) { /* condizione per iniziare il movimento */
+        // Puoi settare argomenti per il task del motore qui
+        motorArgs.pwm = 100;  // esempio
+        create_task(moveMotor, &motorArgs, 100, 0, 1, "Motore");
+        currentState = MOVING;
+        stateEntryTime = millis();
+      }
+      break;
+
+    case MOVING:
+      Serial.println("Stato: MOVING");
+      if  (ENABLE == HIGH)  {
+        currentState = IO;
+        stateEntryTime = millis();
+      }
+      break;
+
+    case IO:
+      Serial.println("Stato: IO");
+      // Esegui task di I/O, come leggere encoder o finecorsa
+      create_task(read_motor_encoders, &motorArgs.motor, 100, 0, 2, "Encoder");
+
+      // Dopo aver letto i sensori, torna in IDLE o passa ad altro
+      currentState = IDLE;
+      stateEntryTime = millis();
+      break;
+  }
+}
+

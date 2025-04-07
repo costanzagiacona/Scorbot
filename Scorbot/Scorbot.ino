@@ -159,6 +159,7 @@ void led_toggle(void *arg) {
 
 // Crea la struttura per passare i parametri (PWM e Motor)
 motor_task_args args = { 200, motor1 };  // Imposta PWM a 100 per il motore
+motor_task_args args1 = { -200, motor1 };  // Imposta PWM a 100 per il motore
 
 unsigned long previousMillis = 0;  // Variabile per memorizzare l'ultimo tempo in cui un task è stato eseguito
 const long interval = 100;         // Intervallo in millisecondi per eseguire il task (1 secondo)
@@ -177,7 +178,8 @@ void setup() {
   //create_task(led_toggle, NULL, 10, 0, 100, "LED Task");
 
   // Crea il task per muovere il motore
-  create_task(moveMotor, &args, 10, 0, 10, "MotorMoveTask");
+  create_task(moveMotor, &args, 10, 0, 12, "MotorMoveTask");  //antiorario
+  create_task(moveMotor, &args1, 10, 0, 10, "MotorMoveTask"); //orario
 }
 
 void loop() {
