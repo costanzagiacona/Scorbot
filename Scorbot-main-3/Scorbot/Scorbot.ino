@@ -160,8 +160,8 @@ void led_toggle(void *arg) {
 
 
 
-motor_task_args arg = { 200, motor1 };  // Imposta PWM a 100 per il motore
- 
+motor_task_args args = { 200, motor1 };  // Imposta PWM a 100 per il motore
+
 void setup() {
   //DA MODIFICARE
 
@@ -170,12 +170,13 @@ void setup() {
   Serial.println("setup");
 
 
-  xTaskCreate( moveMotor , NULL, configMINIMAL_STACK_SIZE, (void *)&arg, 2, NULL);
-  vTaskStartScheduler();
- 
- 
+  // xTaskCreate( moveMotor , NULL, configMINIMAL_STACK_SIZE, (void *)&arg, 2, NULL);
+  // vTaskStartScheduler();
+  // Crea i task
+  xTaskCreate(robotStateManager, "RobotStateManager", 1000, &args, 2, NULL);  // valori più bassi di priorità corrispondono a prirità minori
+  xTaskCreate(moveMotor, "MoveMotor", 1000, &args, 3, NULL);
+  xTaskCreate(read_motor_encoders, "ReadEncoders", 1000, &args.motor, 1, NULL);
 }
 
 void loop() {
-
 }
