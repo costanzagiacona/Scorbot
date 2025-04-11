@@ -158,24 +158,37 @@ void led_toggle(void *arg) {
   Serial.println("Task LED eseguito!");
 }
 
+// setup dei PID
+void setupPID(PID &pid, float kp, float ki, float kd) {
+  // Usa direttamente il tuo metodo setup() senza il filtro derivato e altre inizializzazioni aggiuntive
+  pid.setup(kp, ki, kd);
+}
 
+// Dichiarazione dei PID per i motori
+PID pid1, pid2, pid3, pid4, pid5, pid6;
 
-motor_task_args args = { 200, motor1 };  // Imposta PWM a 100 per il motore
+motor_task_args args = { motor1, 200, &pid1, 100.0f };  // Imposta PWM a 100 per il motore
 
 void setup() {
-  //DA MODIFICARE
-
   // Inizializzazione delle risorse
   Serial.begin(115200);  // Inizializza la comunicazione seriale (opzionale, utile per debug)
   Serial.println("setup");
 
+  // Inizializzazione dei PID con i parametri definiti
+  pid1.setup(PID_1_KP, PID_1_KI, PID_1_KD);
+  pid2.setup(PID_2_KP, PID_2_KI, PID_2_KD);
+  pid3.setup(PID_3_KP, PID_3_KI, PID_3_KD);
+  pid4.setup(PID_4_KP, PID_4_KI, PID_4_KD);
+  pid5.setup(PID_5_KP, PID_5_KI, PID_5_KD);
+  pid6.setup(PID_6_KP, PID_6_KI, PID_6_KD);
 
-  // xTaskCreate( moveMotor , NULL, configMINIMAL_STACK_SIZE, (void *)&arg, 2, NULL);
-  // vTaskStartScheduler();
   // Crea i task
-  xTaskCreate(robotStateManager, "RobotStateManager", 1000, &args, 2, NULL);  // valori più bassi di priorità corrispondono a prirità minori
-  xTaskCreate(moveMotor, "MoveMotor", 1000, &args, 3, NULL);
-  xTaskCreate(read_motor_encoders, "ReadEncoders", 1000, &args.motor, 1, NULL);
+  xTaskCreate(robotStateManager, "RobotStateManager", 1000, &args, 2, NULL);     // Priorità 2: Gestione dello stato (non critico in tempo reale)
+  xTaskCreate(pidTask, "PidTask", 1000, &args, 3, NULL);                         // Priorità 3: Controllo PID (critico in tempo reale)
+  xTaskCreate(moveMotor, "MoveMotor", 1000, &args, 3, NULL);                     // Priorità 3: Attuazione del motore (critico)
+  xTaskCreate(read_motor_encoders, "ReadEncoders", 1000, &args.motor, 2, NULL);  // Priorità 2: Lettura degli encoder (può essere meno critico)
+
+  vTaskStartScheduler();
 }
 
 void loop() {

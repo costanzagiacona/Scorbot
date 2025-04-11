@@ -8,8 +8,10 @@
 
 //MOTORI
 struct motor_task_args {
-  int pwm;        // Valore del PWM
   Motor motor;    // Oggetto del motore
+  int pwm;        // Valore del PWM
+  PID *pid;
+  float reference;
 };
 
 
@@ -21,13 +23,12 @@ enum RobotState {
 };
  
 extern volatile RobotState currentState;
- 
 void robotStateManager(void *arg); // Task FreeRTOS
 
  
-
+extern volatile int pwm_command;
 void moveMotor(void *arg);
-
+void pidTask(void *arg);
 
 //ENCODER
 
