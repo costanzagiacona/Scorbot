@@ -5,7 +5,7 @@
 #include "Job.h"
 #include "control.h"
 
-//DEFINE PIN ciao ciao 
+//DEFINE PIN 
 // DC Motors PINs
 #define MOTORS_EN PG10  //38    // Motors enabler -  pin per abilitare i motori, controllare la direzione di rotazione, la PWM (velocità), gli encoder e gli endstop switch (fine corsa).
 
@@ -59,7 +59,7 @@
 #define TS_US 100000  // Control time sampling (microseconds)
 
 #define PID_1_DIV 1.0   // Motor 1 PID encoder error divider
-#define PID_1_KP 10.0    // Motor 1 PID proportional coefficient
+#define PID_1_KP 5.0    // Motor 1 PID proportional coefficient
 #define PID_1_KI 1.0    // Motor 1 PID integral coefficient
 #define PID_1_KD 1.0    // Motor 1 PID derivative coefficient
 #define PID_1_SAT 0.0   // Motor 1 PID integral saturation
@@ -167,13 +167,13 @@ void setupPID(PID &pid, float kp, float ki, float kd) {
 // Dichiarazione dei PID per i motori
 PID pid1, pid2, pid3, pid4, pid5, pid6;
 
-motor_task_args args = { motor1, 200, &pid1, 500.0f };  // Imposta PWM a 100 per il motore
+motor_task_args args = { motor1, 200, &pid1, -100.0f };  // Imposta PWM a 100 per il motore
 
 void setup() {
   // Inizializzazione delle risorse
   Serial.begin(115200);  // Inizializza la comunicazione seriale (opzionale, utile per debug)
   Serial.println("\n------------NUOVO RUN------------");
-  Serial.println("\nsetup");
+  //Serial.println("\nsetup");
 
   // Inizializzazione dei PID con i parametri definiti
   pid1.setup(PID_1_KP, PID_1_KI, PID_1_KD);
@@ -191,8 +191,9 @@ void setup() {
 
   vTaskStartScheduler();
 
+  Serial.println("Movimento");
   motor1.invertEncoder(false);  // o false, a seconda del verso
-  motor1.driveMotor(-200);
+  motor1.driveMotor(200);
 
 
   
