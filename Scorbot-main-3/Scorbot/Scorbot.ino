@@ -172,24 +172,37 @@ motor_task_args args = { motor1, 200, &pid1, 100.0f };  // Imposta PWM a 100 per
 void setup() {
   // Inizializzazione delle risorse
   Serial.begin(115200);  // Inizializza la comunicazione seriale (opzionale, utile per debug)
-  Serial.println("setup");
+  Serial.println("\n------------NUOVO RUN------------");
+  Serial.println("\nsetup");
 
-  // Inizializzazione dei PID con i parametri definiti
-  pid1.setup(PID_1_KP, PID_1_KI, PID_1_KD);
-  pid2.setup(PID_2_KP, PID_2_KI, PID_2_KD);
-  pid3.setup(PID_3_KP, PID_3_KI, PID_3_KD);
-  pid4.setup(PID_4_KP, PID_4_KI, PID_4_KD);
-  pid5.setup(PID_5_KP, PID_5_KI, PID_5_KD);
-  pid6.setup(PID_6_KP, PID_6_KI, PID_6_KD);
+  // // Inizializzazione dei PID con i parametri definiti
+  // pid1.setup(PID_1_KP, PID_1_KI, PID_1_KD);
+  // pid2.setup(PID_2_KP, PID_2_KI, PID_2_KD);
+  // pid3.setup(PID_3_KP, PID_3_KI, PID_3_KD);
+  // pid4.setup(PID_4_KP, PID_4_KI, PID_4_KD);
+  // pid5.setup(PID_5_KP, PID_5_KI, PID_5_KD);
+  // pid6.setup(PID_6_KP, PID_6_KI, PID_6_KD);
 
-  // Crea i task
-  xTaskCreate(robotStateManager, "RobotStateManager", 1000, &args, 2, NULL);     // Priorità 2: Gestione dello stato (non critico in tempo reale)
-  xTaskCreate(pidTask, "PidTask", 1000, &args, 3, NULL);                         // Priorità 3: Controllo PID (critico in tempo reale)
-  xTaskCreate(moveMotor, "MoveMotor", 1000, &args, 3, NULL);                     // Priorità 3: Attuazione del motore (critico)
-  xTaskCreate(read_motor_encoders, "ReadEncoders", 1000, &args.motor, 2, NULL);  // Priorità 2: Lettura degli encoder (può essere meno critico)
+  // // Crea i task
+  xTaskCreate(robotStateManager, "RobotStateManager", 1000, &args, 4, NULL);     // Priorità 2: Gestione dello stato (non critico in tempo reale)
+  xTaskCreate(pidTask, "PidTask", 1000, &args, 2, NULL);                         // Priorità 3: Controllo PID (critico in tempo reale)
+  xTaskCreate(moveMotor, "MoveMotor", 1000, &args, 1, NULL);                     // Priorità 3: Attuazione del motore (critico)
+  xTaskCreate(read_motor_encoders, "ReadEncoders", 1000, &args.motor, 3, NULL);  // Priorità 2: Lettura degli encoder (può essere meno critico)
 
   vTaskStartScheduler();
+
+  motor1.invertEncoder(false);  // o false, a seconda del verso
+  motor1.driveMotor(-200);
+
+
+  
+ 
+  //delay(100); // rallenta un po' la stampa (facoltativo)
 }
 
 void loop() {
+  // motor1.updateEncoder(); // aggiorna il valore
+  // long valore = motor1.getEncoder(); // prendi il valore
+  // Serial.println(valore); // stampalo sul monitor seriale
+  // //Serial.println(mot1_cha.state());
 }

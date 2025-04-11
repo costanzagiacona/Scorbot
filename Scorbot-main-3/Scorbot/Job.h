@@ -19,7 +19,8 @@ struct motor_task_args {
 enum RobotState {
     IDLE,
     READING_ENCODERS,
-    MOVING
+    MOVING,
+    PID_STATE
 };
  
 extern volatile RobotState currentState;

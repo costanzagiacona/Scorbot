@@ -6,6 +6,9 @@
 //MACCHINA A STATI
 
 volatile RobotState currentState = IDLE;
+// Variabile condivisa tra il task di controllo e quello di attuazione
+// Contiene il comando PWM calcolato dal PID e usato da moveMotor
+volatile int pwm_command = 0;
 
 void robotStateManager(void *arg) {
 
@@ -23,11 +26,13 @@ void robotStateManager(void *arg) {
   for (;;) {
     switch (currentState) {
       case IDLE:
+        //enable.set(false); // imposta il pin a false
         // Ferma il motore
         pwm = 0;
         // (opzionale) Reset encoder, se desiderato
         // motor->resetEncoder();
         Serial.println("Stato: IDLE");
+        currentState = READING_ENCODERS;
         break;
 
       case READING_ENCODERS:
@@ -35,25 +40,27 @@ void robotStateManager(void *arg) {
         motor.updateEncoder();
         Serial.print("Encoder: ");
         Serial.println(motor.getEncoder());  // Se esiste un metodo così
+        currentState = PID_STATE;
+        break;
+
+      case PID_STATE:
+        Serial.println("PID manager");
+        currentState = MOVING;
         break;
 
       case MOVING:
         // Continua a guidare il motore con il PWM corrente
-        pwm = motor.pin_PWM.pwm_;
         // Legge anche encoder mentre si muove (opzionale ma utile)
         motor.updateEncoder();
-        Serial.print("Stato: MOVING, Encoder: ");
-        Serial.println(motor.getEncoder());
+        Serial.print("Stato: MOVING, PWM: ");
+        Serial.println(pwm);
+        currentState = READING_ENCODERS;
         break;
     }
     vTaskDelayUntil(&xLastWakeTime, xFrequency);
   }
 }
 
-
-// Variabile condivisa tra il task di controllo e quello di attuazione
-// Contiene il comando PWM calcolato dal PID e usato da moveMotor
-volatile int pwm_command = 0; 
 
 void pidTask(void *arg) {
 
@@ -73,6 +80,8 @@ void pidTask(void *arg) {
 
     // Calcola output del PID (cioè il comando di controllo)
     int pwm_cmd = (int)pid->evolve(error);
+    Serial.println("\nerrore pid");
+    Serial.println(pwm_cmd);
 
     // Aggiorna la variabile globale pwm_command con il valore calcolato
     pwm_command = pwm_cmd;
