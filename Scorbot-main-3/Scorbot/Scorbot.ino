@@ -59,9 +59,9 @@
 #define TS_US 100000  // Control time sampling (microseconds)
 
 #define PID_1_DIV 1.0   // Motor 1 PID encoder error divider
-#define PID_1_KP 0.0    // Motor 1 PID proportional coefficient
-#define PID_1_KI 0.0    // Motor 1 PID integral coefficient
-#define PID_1_KD 0.0    // Motor 1 PID derivative coefficient
+#define PID_1_KP 10.0    // Motor 1 PID proportional coefficient
+#define PID_1_KI 1.0    // Motor 1 PID integral coefficient
+#define PID_1_KD 1.0    // Motor 1 PID derivative coefficient
 #define PID_1_SAT 0.0   // Motor 1 PID integral saturation
 #define PID_1_POLE 0.0  // Motor 1 PID dirty derivative pole
 
@@ -167,7 +167,7 @@ void setupPID(PID &pid, float kp, float ki, float kd) {
 // Dichiarazione dei PID per i motori
 PID pid1, pid2, pid3, pid4, pid5, pid6;
 
-motor_task_args args = { motor1, 200, &pid1, 100.0f };  // Imposta PWM a 100 per il motore
+motor_task_args args = { motor1, 200, &pid1, -200.0f };  // Imposta PWM a 100 per il motore
 
 void setup() {
   // Inizializzazione delle risorse
@@ -175,13 +175,13 @@ void setup() {
   Serial.println("\n------------NUOVO RUN------------");
   Serial.println("\nsetup");
 
-  // // Inizializzazione dei PID con i parametri definiti
-  // pid1.setup(PID_1_KP, PID_1_KI, PID_1_KD);
-  // pid2.setup(PID_2_KP, PID_2_KI, PID_2_KD);
-  // pid3.setup(PID_3_KP, PID_3_KI, PID_3_KD);
-  // pid4.setup(PID_4_KP, PID_4_KI, PID_4_KD);
-  // pid5.setup(PID_5_KP, PID_5_KI, PID_5_KD);
-  // pid6.setup(PID_6_KP, PID_6_KI, PID_6_KD);
+  // Inizializzazione dei PID con i parametri definiti
+  pid1.setup(PID_1_KP, PID_1_KI, PID_1_KD);
+  pid2.setup(PID_2_KP, PID_2_KI, PID_2_KD);
+  pid3.setup(PID_3_KP, PID_3_KI, PID_3_KD);
+  pid4.setup(PID_4_KP, PID_4_KI, PID_4_KD);
+  pid5.setup(PID_5_KP, PID_5_KI, PID_5_KD);
+  pid6.setup(PID_6_KP, PID_6_KI, PID_6_KD);
 
   // // Crea i task
   xTaskCreate(robotStateManager, "RobotStateManager", 1000, &args, 4, NULL);     // Priorità 2: Gestione dello stato (non critico in tempo reale)
