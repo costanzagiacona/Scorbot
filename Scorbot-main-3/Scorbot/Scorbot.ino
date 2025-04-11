@@ -5,7 +5,7 @@
 #include "Job.h"
 #include "control.h"
 
-//DEFINE PIN
+//DEFINE PIN ciao ciao 
 // DC Motors PINs
 #define MOTORS_EN PG10  //38    // Motors enabler -  pin per abilitare i motori, controllare la direzione di rotazione, la PWM (velocità), gli encoder e gli endstop switch (fine corsa).
 
