@@ -28,7 +28,8 @@ enum RobotState {
     IDLE,
     READING_ENCODERS,
     MOVING,
-    PID_STATE
+    PID_STATE,
+    RETURNING
 };
  
 extern volatile RobotState currentState;
