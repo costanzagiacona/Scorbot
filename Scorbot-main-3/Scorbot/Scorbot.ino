@@ -1,5 +1,4 @@
 #include "components.h"
-#include "Pid.h"
 #include "util.h"
 #include <STM32FreeRTOS.h>
 #include "Job.h"
@@ -66,9 +65,9 @@
 #define PID_1_POLE 0.0  // Motor 1 PID dirty derivative pole
 
 #define PID_2_DIV 1.0   // Motor 2 PID encoder error divider
-#define PID_2_KP 0.0    // Motor 2 PID proportional coefficient
-#define PID_2_KI 0.0    // Motor 2 PID integral coefficient
-#define PID_2_KD 0.0    // Motor 2 PID derivative coefficient
+#define PID_2_KP 3.0    // Motor 2 PID proportional coefficient
+#define PID_2_KI 1.0    // Motor 2 PID integral coefficient
+#define PID_2_KD 1.0    // Motor 2 PID derivative coefficient
 #define PID_2_SAT 0.0   // Motor 2 PID integral saturation
 #define PID_2_POLE 0.0  // Motor 2 PID dirty derivative pole
 
@@ -167,7 +166,21 @@ void setupPID(PID &pid, float kp, float ki, float kd) {
 // Dichiarazione dei PID per i motori
 PID pid1, pid2, pid3, pid4, pid5, pid6;
 
-motor_task_args args = { motor1, 200, &pid1, -100.0f };  // Imposta PWM a 100 per il motore
+//MOTORI
+//motor_task_args args = { motor2, 200,  &pid2,  70.0f };  // Imposta PWM a 100 per il motore
+
+motor_task_args motors[6] = {
+  motor_task_args(motor1, 200, &pid1, -100.0f),
+  motor_task_args(motor2, 200, &pid2, -70.0f),
+  motor_task_args(motor3, 150, &pid3, -50.0f),
+  motor_task_args(motor4, 150, &pid4, -30.0f),
+  motor_task_args(motor5, 100, &pid5, 0.0f),
+  motor_task_args(motor6, 100, &pid6, 50.0f)
+};
+
+
+//per modificare gli elementi motors[0].reference = 100.0f;
+
 
 void setup() {
   // Inizializzazione delle risorse
@@ -184,16 +197,18 @@ void setup() {
   pid6.setup(PID_6_KP, PID_6_KI, PID_6_KD);
 
   // // Crea i task
-  xTaskCreate(robotStateManager, "RobotStateManager", 1000, &args, 4, NULL);     // Priorità 2: Gestione dello stato (non critico in tempo reale)
-  xTaskCreate(pidTask, "PidTask", 1000, &args, 2, NULL);                         // Priorità 3: Controllo PID (critico in tempo reale)
-  xTaskCreate(moveMotor, "MoveMotor", 1000, &args, 1, NULL);                     // Priorità 3: Attuazione del motore (critico)
-  xTaskCreate(read_motor_encoders, "ReadEncoders", 1000, &args.motor, 3, NULL);  // Priorità 2: Lettura degli encoder (può essere meno critico)
-
+  //valore più alto -> priorità più alta 
+  //          (funzione task, nome task, dimensione della pila del task in termini di parole, argomenti, priorità, puntatore)
+  xTaskCreate(robotStateManager, "RobotStateManager", 1000, &args, 4, NULL);     // Priorità 4: Gestione dello stato (non critico in tempo reale)
+  xTaskCreate(read_motor_encoders, "ReadEncoders", 1000, &args.motor, 3, NULL);  // Priorità 3: Lettura degli encoder (può essere meno critico)
+  xTaskCreate(pidTask, "PidTask", 1000, &args, 2, NULL);                         // Priorità 2: Controllo PID (critico in tempo reale)
+  xTaskCreate(moveMotor, "MoveMotor", 1000, &args, 1, NULL);                     // Priorità 1: Attuazione del motore (critico)
+  
   vTaskStartScheduler();
 
-  Serial.println("Movimento");
-  motor1.invertEncoder(false);  // o false, a seconda del verso
-  motor1.driveMotor(200);
+  // //Serial.println("Movimento");
+  //motor1.invertEncoder(false);  // o false, a seconda del verso
+  //motor1.driveMotor(200);
 
 
   

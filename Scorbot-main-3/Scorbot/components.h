@@ -17,12 +17,14 @@
 #include <Arduino.h>
 #include <math.h>
 #include <stm32f4xx_hal.h>
-#include <HardwareTimer.h>    /****************/
-#include "Pid.h"
+#include <HardwareTimer.h>    
 #include "control.h"
 #include "util.h"
 
-// PIN CONTROL //
+// ==================================================
+// Pin
+// ==================================================
+
 
 class PinControl {
 public:
@@ -109,8 +111,9 @@ private:
   #endif
 };
 
-
-// DC Motor with Encoder
+// ==================================================
+// Motor
+// ==================================================
 class Motor{
 public:
   Motor(PinControl &INA, PinControl &INB, PinControl &PWM, PinMeasure &CHA, PinMeasure &CHB, PinMeasure &END);

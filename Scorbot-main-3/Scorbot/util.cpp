@@ -34,7 +34,7 @@ long remap4( long v,  long a1,  long b1,  long a2,  long b2, bool clamp){
   clamp = false;
   return round(remap1((float) v, (float) a1, (float) b1, (float) a2, (float) b2, clamp));
 }
-// ricorda che hai torlo const &
+// ricorda che hai tolto const &
 void byteToHex( uint8_t  byte, char  hhex, char  lhex) {
   nibbleToHex((byte & 0b00001111) >> 0, lhex);
   nibbleToHex((byte & 0b11110000) >> 4, hhex);
