@@ -4,6 +4,7 @@
 #include "Job.h"
 #include "control.h"
 
+
 //DEFINE PIN 
 // DC Motors PINs
 #define MOTORS_EN PG10  //38    // Motors enabler -  pin per abilitare i motori, controllare la direzione di rotazione, la PWM (velocità), gli encoder e gli endstop switch (fine corsa).
@@ -170,16 +171,15 @@ PID pid1, pid2, pid3, pid4, pid5, pid6;
 //motor_task_args args = { motor2, 200,  &pid2,  70.0f };  // Imposta PWM a 100 per il motore
 
 motor_task_args motors[6] = {
-  motor_task_args(motor1, 200, &pid1, -100.0f),
-  motor_task_args(motor2, 200, &pid2, -70.0f),
+  motor_task_args(motor1, 200, &pid1, 100.0f), //riferimento positivo -> giro antiorario
+  motor_task_args(motor2, 200, &pid2, -70.0f), //riferimento positivo -> va avanti
   motor_task_args(motor3, 150, &pid3, -50.0f),
   motor_task_args(motor4, 150, &pid4, -30.0f),
   motor_task_args(motor5, 100, &pid5, 0.0f),
   motor_task_args(motor6, 100, &pid6, 50.0f)
 };
 
-
-//per modificare gli elementi motors[0].reference = 100.0f;
+//per modificare gli elementi fai motors[0].reference = 100.0f;
 
 
 void setup() {
@@ -199,11 +199,17 @@ void setup() {
   // // Crea i task
   //valore più alto -> priorità più alta 
   //          (funzione task, nome task, dimensione della pila del task in termini di parole, argomenti, priorità, puntatore)
-  xTaskCreate(robotStateManager, "RobotStateManager", 1000, &args, 4, NULL);     // Priorità 4: Gestione dello stato (non critico in tempo reale)
-  xTaskCreate(read_motor_encoders, "ReadEncoders", 1000, &args.motor, 3, NULL);  // Priorità 3: Lettura degli encoder (può essere meno critico)
-  xTaskCreate(pidTask, "PidTask", 1000, &args, 2, NULL);                         // Priorità 2: Controllo PID (critico in tempo reale)
-  xTaskCreate(moveMotor, "MoveMotor", 1000, &args, 1, NULL);                     // Priorità 1: Attuazione del motore (critico)
+  // xTaskCreate(robotStateManager, "RobotStateManager", 1000, &args, 4, NULL);     // Priorità 4: Gestione dello stato (non critico in tempo reale)
+  // xTaskCreate(read_motor_encoders, "ReadEncoders", 1000, &args.motor, 3, NULL);  // Priorità 3: Lettura degli encoder (può essere meno critico)
+  // xTaskCreate(pidTask, "PidTask", 1000, &args, 2, NULL);                         // Priorità 2: Controllo PID (critico in tempo reale)
+  // xTaskCreate(moveMotor, "MoveMotor", 1000, &args, 1, NULL);                     // Priorità 1: Attuazione del motore (critico)
   
+  // Passa l'intero array motors ai task
+  xTaskCreate(robotStateManager, "RobotStateManager", 1000, motors, 4, NULL); 
+  xTaskCreate(read_motor_encoders, "ReadEncoders", 1000, motors, 3, NULL);  // Passa l'intero array
+  xTaskCreate(pidTask, "PidTask", 1000, motors, 2, NULL);                    // Passa l'intero array
+  xTaskCreate(moveMotor, "MoveMotor", 1000, motors, 1, NULL);                
+
   vTaskStartScheduler();
 
   // //Serial.println("Movimento");
