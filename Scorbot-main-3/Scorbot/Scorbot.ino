@@ -167,7 +167,7 @@ void setupPID(PID &pid, float kp, float ki, float kd) {
 // Dichiarazione dei PID per i motori
 PID pid1, pid2, pid3, pid4, pid5, pid6;
 
-motor_task_args args = { motor1, 200, &pid1, -200.0f };  // Imposta PWM a 100 per il motore
+motor_task_args args = { motor1, 200, &pid1, 500.0f };  // Imposta PWM a 100 per il motore
 
 void setup() {
   // Inizializzazione delle risorse
