@@ -3,7 +3,17 @@
 
 #include"components.h"
 
-
+//MACCHINA A STATI
+enum RobotState {
+    IDLE,
+    READING_ENCODERS,
+    MOVING,
+    PID_STATE,
+    RETURNING
+};
+ 
+extern volatile RobotState currentState;
+void robotStateManager(void *arg); // Task FreeRTOS
 
 
 //MOTORI
@@ -22,29 +32,17 @@ struct motor_task_args {
     : motor(motor_ref), pwm(pwm_val), pid(pid_ref), reference(ref) {}
 };
 
-
-//MACCHINA A STATI
-enum RobotState {
-    IDLE,
-    READING_ENCODERS,
-    MOVING,
-    PID_STATE,
-    RETURNING
-};
- 
-extern volatile RobotState currentState;
-void robotStateManager(void *arg); // Task FreeRTOS
-
- 
 extern volatile int pwm_command;
 void moveMotor(void *arg);
+
+// PID
 void pidTask(void *arg);
 
 //ENCODER
-
 void read_motor_encoders(void *arg);
 
-
+//WCET TOTALE
+void loggerTask(void *pvParameters);
 
 
 #endif

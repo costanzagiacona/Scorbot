@@ -5,7 +5,7 @@
 #include "control.h"
 
 
-//DEFINE PIN 
+//DEFINE PIN
 // DC Motors PINs
 #define MOTORS_EN PG10  //38    // Motors enabler -  pin per abilitare i motori, controllare la direzione di rotazione, la PWM (velocità), gli encoder e gli endstop switch (fine corsa).
 
@@ -171,8 +171,8 @@ PID pid1, pid2, pid3, pid4, pid5, pid6;
 //motor_task_args args = { motor2, 200,  &pid2,  70.0f };  // Imposta PWM a 100 per il motore
 
 motor_task_args motors[6] = {
-  motor_task_args(motor1, 200, &pid1, 100.0f), //riferimento positivo -> giro antiorario
-  motor_task_args(motor2, 200, &pid2, -70.0f), //riferimento positivo -> va avanti
+  motor_task_args(motor1, 200, &pid1, -100.0f),  //riferimento positivo -> giro antiorario
+  motor_task_args(motor2, 200, &pid2, -70.0f),  //riferimento positivo -> va avanti
   motor_task_args(motor3, 150, &pid3, -50.0f),
   motor_task_args(motor4, 150, &pid4, -30.0f),
   motor_task_args(motor5, 100, &pid5, 0.0f),
@@ -184,9 +184,8 @@ motor_task_args motors[6] = {
 
 void setup() {
   // Inizializzazione delle risorse
-  Serial.begin(115200);  // Inizializza la comunicazione seriale (opzionale, utile per debug)
-  Serial.println("\n------------NUOVO RUN------------");
-  //Serial.println("\nsetup");
+  Serial.begin(115200);  // Inizializza la comunicazione seriale 
+  Serial.println("\n------------NUOVO RUN--------------");
 
   // Inizializzazione dei PID con i parametri definiti
   pid1.setup(PID_1_KP, PID_1_KI, PID_1_KD);
@@ -197,29 +196,20 @@ void setup() {
   pid6.setup(PID_6_KP, PID_6_KI, PID_6_KD);
 
   // // Crea i task
-  //valore più alto -> priorità più alta 
+  //valore più alto -> priorità più alta
   //          (funzione task, nome task, dimensione della pila del task in termini di parole, argomenti, priorità, puntatore)
   // xTaskCreate(robotStateManager, "RobotStateManager", 1000, &args, 4, NULL);     // Priorità 4: Gestione dello stato (non critico in tempo reale)
   // xTaskCreate(read_motor_encoders, "ReadEncoders", 1000, &args.motor, 3, NULL);  // Priorità 3: Lettura degli encoder (può essere meno critico)
   // xTaskCreate(pidTask, "PidTask", 1000, &args, 2, NULL);                         // Priorità 2: Controllo PID (critico in tempo reale)
   // xTaskCreate(moveMotor, "MoveMotor", 1000, &args, 1, NULL);                     // Priorità 1: Attuazione del motore (critico)
-  
+
   // Passa l'intero array motors ai task
-  xTaskCreate(robotStateManager, "RobotStateManager", 1000, motors, 4, NULL); 
-  xTaskCreate(read_motor_encoders, "ReadEncoders", 1000, motors, 3, NULL);  // Passa l'intero array
-  xTaskCreate(pidTask, "PidTask", 1000, motors, 2, NULL);                    // Passa l'intero array
-  xTaskCreate(moveMotor, "MoveMotor", 1000, motors, 1, NULL);                
-
+  xTaskCreate(robotStateManager, "RobotStateManager", 1000, motors, 10, NULL);
+  xTaskCreate(read_motor_encoders, "ReadEncoders", 1000, motors, 9, NULL);  // Passa l'intero array
+  xTaskCreate(pidTask, "PidTask", 1000, motors, 8, NULL);                   // Passa l'intero array
+  xTaskCreate(moveMotor, "MoveMotor", 1000, motors, 7, NULL);
+  xTaskCreate(loggerTask, "WCET", 1000, NULL, 1, NULL);
   vTaskStartScheduler();
-
-  // //Serial.println("Movimento");
-  //motor1.invertEncoder(false);  // o false, a seconda del verso
-  //motor1.driveMotor(200);
-
-
-  
- 
-  //delay(100); // rallenta un po' la stampa (facoltativo)
 }
 
 void loop() {
