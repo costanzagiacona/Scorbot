@@ -18,7 +18,7 @@ bool target = false;
 int motorsAtTargetCount = 0;  // Variabile per tenere traccia di quanti motori hanno raggiunto il target
 int motorsAtHomeCount = 0;    // Contatore dei motori che sono tornati alla posizione di partenza
 // variabile epsilon per vedere la differenza tra riferimento e posizione attuale
-int epsilon = 20;
+int epsilon = 10;
 
 //calcolo WCET
 uint32_t wcet_manager = 0;
@@ -154,7 +154,7 @@ void robotStateManager(void *arg) {
           }
 
           // Se un motore ha raggiunto la posizione di partenza (encoder <= 0)
-          if (motor.getEncoder() <= epsilon / 2) {  //--------------------------------------------------------------------bisogna verificare questa condizione
+          if (motor.getEncoder() <= epsilon ) {  //--------------------------------------------------------------------bisogna verificare questa condizione
             motorsAtHomeCount++;                    // Incrementa il contatore
                                                     // Serial.print("Motore ");
             //Serial.print(i + 1);
