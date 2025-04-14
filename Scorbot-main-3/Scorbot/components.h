@@ -138,6 +138,10 @@ public:
 
   bool isInEndStop();               // Check if motor is at endstop
 
+
+
+
+
 public:
   PinControl &pin_INA;          // A pin
   PinControl &pin_INB;          // B pin

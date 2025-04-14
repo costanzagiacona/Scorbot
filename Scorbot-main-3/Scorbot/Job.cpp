@@ -18,7 +18,7 @@ bool target = false;
 int motorsAtTargetCount = 0;  // Variabile per tenere traccia di quanti motori hanno raggiunto il target
 int motorsAtHomeCount = 0;    // Contatore dei motori che sono tornati alla posizione di partenza
 // variabile epsilon per vedere la differenza tra riferimento e posizione attuale
-int epsilon = 10;
+int epsilon = 22;
 
 //calcolo WCET
 uint32_t wcet_manager = 0;
@@ -91,27 +91,53 @@ void robotStateManager(void *arg) {
           // Controlla se il motore ha raggiunto il target
           Serial.print("Encoder:");
           Serial.println(motor.getEncoder());
-          Serial.print("Differenza: ");
+          Serial.print("Distanza da target: ");
           Serial.println(abs(abs(motor.getEncoder()) - abs(target_position)));
           Serial.print("Finecorsa: ");
           Serial.println(motor.isInEndStop());
           Serial.println("");
-          if (abs(abs(motor.getEncoder()) - abs(target_position)) <= abs(epsilon) || motor.isInEndStop()) {
-            motorsAtTargetCount++;  // Incrementa il contatore
-            // Serial.print("Motore ");
-            // Serial.print(i + 1);
-            //Serial.println(" ha raggiunto il target!");
-            //delay(10000);
 
-            // Se tutti i motori hanno raggiunto il target, passiamo allo stato di ritorno
-            if (motorsAtTargetCount == N_Motors) {
-              Serial.println("Tutti i motori hanno raggiunto il target. Inizio il ritorno!");
-              currentState = RETURNING;
-              target = true;
-              motorsAtTargetCount = 0;  // Reset del contatore
-            }
-            break;
+          // if (abs(abs(motor.getEncoder()) - abs(target_position)) <= abs(epsilon) || motor.isInEndStop()) {
+          //   motorsAtTargetCount++;  // Incrementa il contatore
+          //   // Serial.print("Motore ");
+          //   // Serial.print(i + 1);
+          //   //Serial.println(" ha raggiunto il target!");
+          //   //delay(10000);
+
+          //   // // Se tutti i motori hanno raggiunto il target, passiamo allo stato di ritorno
+          //   if (motorsAtTargetCount == N_Motors) {
+          //     Serial.println("Tutti i motori hanno raggiunto il target. Inizio il ritorno!");
+          //     currentState = RETURNING;
+          //     target = true;
+          //     motorsAtTargetCount = 0;  // Reset del contatore
+          //   }
+          //   break;
+          // }
+
+          // if (motor.isInEndStop()) {                        //--------------------------------------------------------------------bisogna verificare questa condizione e quella sotto 
+          //   if ((motor.getEncoder() > target_position && motor.getEncoder() > 0) || (motor.getEncoder() < target_position && motor.getEncoder() < 0)) {
+          //     // Se è in fine corsa e sta cercando di andare nella stessa direzione, fermati
+          //     Serial.println("Motore va in direzione finecorsa -> PWM = 0");
+          //     pwm = 0;
+          //   }
+          //   else { Serial.println("Motore va in direzione opposta finecorsa");}
+          // }
+          if (abs( abs(motor.getEncoder()) - abs(target_position)) <= abs(epsilon) )
+          {
+              // Se siamo vicini alla posizione target, fermati
+              motorsAtTargetCount++;  // Incrementa il contatore
+
+              // Se tutti i motori hanno raggiunto il target, passiamo allo stato di ritorno
+              if (motorsAtTargetCount == N_Motors) {
+                Serial.println("Tutti i motori hanno raggiunto il target. Inizio il ritorno!");
+                currentState = RETURNING;
+                target = true;
+                motorsAtTargetCount = 0;  // Reset del contatore
+              }
+              break;
           }
+
+
           currentState = PID_STATE;
 
           break;
@@ -143,20 +169,20 @@ void robotStateManager(void *arg) {
           //Serial.print(" → PWM: ");
           //Serial.print(-pwm);
           // Movimento inverso
-          
+
           if (target) {
             Serial.println("Nuovi riferimenti");
             for (int i = 0; i < N_Motors; i++) {
-              args[i].reference = -args[i].reference;  //--------------------------------------------------------------------bisogna verificare questa condizione
+              args[i].reference = -args[i].reference;  
               Serial.println(args[i].reference);
             }
             target = false;
           }
 
           // Se un motore ha raggiunto la posizione di partenza (encoder <= 0)
-          if (motor.getEncoder() <= epsilon ) {  //--------------------------------------------------------------------bisogna verificare questa condizione
-            motorsAtHomeCount++;                    // Incrementa il contatore
-                                                    // Serial.print("Motore ");
+          if (motor.getEncoder() <= epsilon/2) {  //--------------------------------------------------------------------bisogna verificare questa condizione
+            motorsAtHomeCount++;                // Incrementa il contatore
+                                                // Serial.print("Motore ");
             //Serial.print(i + 1);
             // Serial.println(" ha raggiunto la posizione di partenza!");
 
@@ -272,7 +298,7 @@ void moveMotor(void *arg) {
 
       pwm_command = pwm_cmd;  //poniamo la variabile globale di movimento pari alla variabile locale di movimento
 
-      if (idle) pwm_command = 0; //robot fermo
+      if (idle) pwm_command = 0;  //robot fermo
 
       // Se il motore ha raggiunto il fine corsa, fermalo
       if (motor.isInEndStop()) {
@@ -284,10 +310,10 @@ void moveMotor(void *arg) {
         motor.driveMotor(pwm_command);
       }
 
-      Serial.print("Movimento Motore ");
-      Serial.print(i + 1);
-      Serial.print(" → PWM : ");
-      Serial.println(pwm_command);
+      // Serial.print("Movimento Motore ");
+      // Serial.print(i + 1);
+      // Serial.print(" → PWM : ");
+      // Serial.println(pwm_command);
 
       //Serial.print("Finecorsa? ");
       //Serial.println(motor.isInEndStop());

@@ -58,9 +58,10 @@
 // Control
 #define TS_US 100000  // Control time sampling (microseconds)
 
+// aumento kp -> aumenta velocità del motore
 #define PID_1_DIV 1.0   // Motor 1 PID encoder error divider
-#define PID_1_KP 5.0    // Motor 1 PID proportional coefficient
-#define PID_1_KI 1.0    // Motor 1 PID integral coefficient
+#define PID_1_KP 6.0    // Motor 1 PID proportional coefficient
+#define PID_1_KI 0.5    // Motor 1 PID integral coefficient
 #define PID_1_KD 1.0    // Motor 1 PID derivative coefficient
 #define PID_1_SAT 0.0   // Motor 1 PID integral saturation
 #define PID_1_POLE 0.0  // Motor 1 PID dirty derivative pole
