@@ -6,7 +6,7 @@
 
 
 #define N_Motors 1  //numero di motori \
-                    // Variabile per controllare se il robot deve tornare indietro
+// Variabile per controllare se il robot deve tornare indietro
 bool returning = false;
 //Variabile per controllare se il robot deve rimanere fermo, dopo returning
 bool idle = false;
@@ -34,7 +34,7 @@ void robotStateManager(void *arg) {
 
   motor_task_args *args = (motor_task_args *)arg;  // Cast dell'argomento passato a un array di motor_task_args
 
-  Serial.print("Task Macchina a Stati__________________________________________ ");
+  //Serial.print("Task Macchina a Stati__________________________________________ ");
 
   const TickType_t xFrequency = 20 / portTICK_PERIOD_MS;
   TickType_t xLastWakeTime = xTaskGetTickCount();
@@ -130,7 +130,8 @@ void robotStateManager(void *arg) {
           // Serial.print("RETURNING motore ");
           // Serial.print(i + 1);
           //Serial.print(" → PWM: ");
-          //Serial.print(-pwm);  // Movimento inverso
+          //Serial.print(-pwm);  
+          // Movimento inverso
           for (int i = 0; i < N_Motors; i++) {
             args[i].reference = -args[i].reference;
           }
@@ -272,8 +273,8 @@ void moveMotor(void *arg) {
       //Serial.print("PWM finale applicato: ");
       //Serial.println(pwm_cmd);
 
-      Serial.print("Finecorsa? ");
-      Serial.println(motor.isInEndStop());
+      //Serial.print("Finecorsa? ");
+      //Serial.println(motor.isInEndStop());
 
       uint32_t end = micros();
       uint32_t elapsed = end - start;

@@ -187,6 +187,12 @@ void setup() {
   Serial.begin(115200);  // Inizializza la comunicazione seriale 
   Serial.println("\n------------NUOVO RUN--------------");
 
+  // Variabile per controllare se il robot deve tornare indietro
+  //returning = false;
+  //Variabile per controllare se il robot deve rimanere fermo, dopo returning
+  //idle = false;
+
+
   // Inizializzazione dei PID con i parametri definiti
   pid1.setup(PID_1_KP, PID_1_KI, PID_1_KD);
   pid2.setup(PID_2_KP, PID_2_KI, PID_2_KD);
