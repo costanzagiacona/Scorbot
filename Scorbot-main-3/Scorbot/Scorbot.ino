@@ -67,7 +67,7 @@
 #define PID_1_POLE 0.0  // Motor 1 PID dirty derivative pole
 
 #define PID_2_DIV 1.0   // Motor 2 PID encoder error divider
-#define PID_2_KP 3.0    // Motor 2 PID proportional coefficient
+#define PID_2_KP 10.0    // Motor 2 PID proportional coefficient
 #define PID_2_KI 1.0    // Motor 2 PID integral coefficient
 #define PID_2_KD 1.0    // Motor 2 PID derivative coefficient
 #define PID_2_SAT 0.0   // Motor 2 PID integral saturation
@@ -173,7 +173,7 @@ PID pid1, pid2, pid3, pid4, pid5, pid6;
 
 motor_task_args motors[6] = {
   motor_task_args(motor1, 200, &pid1, 200.0f),  //riferimento positivo -> giro antiorario   --- get.Encoder restituisce valori positivi in senso orario
-  motor_task_args(motor2, 200, &pid2, -70.0f),  //riferimento positivo -> va avanti
+  motor_task_args(motor2, 200, &pid2, -17.0f),  //riferimento positivo -> va avanti
   motor_task_args(motor3, 150, &pid3, -50.0f),
   motor_task_args(motor4, 150, &pid4, -30.0f),
   motor_task_args(motor5, 100, &pid5, 0.0f),
@@ -187,12 +187,15 @@ void setup() {
   // Inizializzazione delle risorse
   Serial.begin(115200);  // Inizializza la comunicazione seriale 
   Serial.println("\n------------NUOVO RUN--------------");
+  Serial.println("\n------------NUOVO RUN--------------");
+  Serial.println("\n------------NUOVO RUN--------------");
 
   // Variabile per controllare se il robot deve tornare indietro
   //returning = false;
   //Variabile per controllare se il robot deve rimanere fermo, dopo returning
   //idle = false;
 
+  motor2.setEncoder(0);
 
   // Inizializzazione dei PID con i parametri definiti
   pid1.setup(PID_1_KP, PID_1_KI, PID_1_KD);

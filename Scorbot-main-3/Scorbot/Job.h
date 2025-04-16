@@ -23,6 +23,7 @@ struct motor_task_args {
   PID *pid;
   float reference;
 
+
   // // Costruttore per inizializzare i membri della struttura
   // motor_task_args(Motor m, int p, PID *pid_ref, float ref)
   //     : motor(m), pwm(p), pid(pid_ref), reference(ref) {}
