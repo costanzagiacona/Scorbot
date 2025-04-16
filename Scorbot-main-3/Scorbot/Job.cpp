@@ -5,7 +5,7 @@
 #include <Arduino.h>
 
 
-#define N_Motors 2  //numero di motori
+#define N_Motors 6  //numero di motori
 //FLAG
 // Variabile per controllare se il robot deve tornare indietro
 bool returning = false;
@@ -19,7 +19,7 @@ int motorsAtTargetCount = 0;  // Variabile per tenere traccia di quanti motori h
 int motorsAtHomeCount = 0;    // Contatore dei motori che sono tornati alla posizione di partenza
 // variabile epsilon per vedere la differenza tra riferimento e posizione attuale
 //int epsilon = 22;
-int epsilon[6] = { 22, 16, 5, 5, 5, 5 };
+int epsilon[6] = { 22, 16, 34, 5, 5, 5 };
 
 //calcolo WCET
 uint32_t wcet_manager = 0;
@@ -53,7 +53,7 @@ void robotStateManager(void *arg) {
     uint32_t start = micros();  // inizio conteggio tempo esecuzione
 
     for (int i = 0; i < N_Motors; i++) {  // Itera su tutti i motori
-      if (i == 1) {
+      if (i == 2) { //-----------------------------------------------------------------------------------------------------------
         Serial.print("MOTORE: ");
         Serial.println(i + 1);
       }
@@ -98,7 +98,7 @@ void robotStateManager(void *arg) {
           //Serial.println(motor.getEncoder());
 
           // Controlla se il motore ha raggiunto il target
-          if (i == 1) {
+          if (i == 2) { //-----------------------------------------------------------------------------------------------------------
             Serial.print("Encoder:");
             Serial.println(motor.getEncoder());
             Serial.print("Distanza da target: ");
@@ -174,7 +174,7 @@ void robotStateManager(void *arg) {
           }
 
           // Controlla se il motore ha raggiunto il target
-          if (i == 1) {
+          if (i == 2) { //-----------------------------------------------------------------------------------------------------------
             Serial.print("Encoder:");
             Serial.println(motor.getEncoder());
             Serial.print("Distanza da target: ");
