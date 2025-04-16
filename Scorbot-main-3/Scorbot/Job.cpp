@@ -93,8 +93,8 @@ void robotStateManager(void *arg) {
           Serial.println(motor.getEncoder());
           Serial.print("Distanza da target: ");
           Serial.println(abs(abs(motor.getEncoder()) - abs(target_position)));
-          Serial.print("Finecorsa: ");
-          Serial.println(motor.isInEndStop());
+          // Serial.print("Finecorsa: ");
+          // Serial.println(motor.isInEndStop());
           Serial.println("");
 
           // if (abs(abs(motor.getEncoder()) - abs(target_position)) <= abs(epsilon) || motor.isInEndStop()) {
@@ -114,7 +114,7 @@ void robotStateManager(void *arg) {
           //   break;
           // }
 
-          // if (motor.isInEndStop()) {                        //--------------------------------------------------------------------bisogna verificare questa condizione e quella sotto 
+          // if (motor.isInEndStop()) {                        
           //   if ((motor.getEncoder() > target_position && motor.getEncoder() > 0) || (motor.getEncoder() < target_position && motor.getEncoder() < 0)) {
           //     // Se è in fine corsa e sta cercando di andare nella stessa direzione, fermati
           //     Serial.println("Motore va in direzione finecorsa -> PWM = 0");
@@ -301,10 +301,10 @@ void moveMotor(void *arg) {
       if (idle) pwm_command = 0;  //robot fermo
 
       // Se il motore ha raggiunto il fine corsa, fermalo
-      if (motor.isInEndStop()) {
-        pwm_command = 0;
-        motor.driveMotor(pwm_command);  // Sicurezza: fermiamo il motore
-      }
+      // if (motor.isInEndStop()) {
+      //   pwm_command = 0;
+      //   motor.driveMotor(pwm_command);  // Sicurezza: fermiamo il motore
+      // }
       // Altrimenti, applica il comando calcolato dal PID
       else {
         motor.driveMotor(pwm_command);
