@@ -172,7 +172,7 @@ PID pid1, pid2, pid3, pid4, pid5, pid6;
 //motor_task_args args = { motor2, 200,  &pid2,  70.0f };  // Imposta PWM a 100 per il motore
 
 motor_task_args motors[6] = {
-  motor_task_args(motor1, 200, &pid1, -200.0f),  //riferimento positivo -> giro antiorario   --- get.Encoder restituisce valori positivi in senso orario
+  motor_task_args(motor1, 200, &pid1, 200.0f),  //riferimento positivo -> giro antiorario   --- get.Encoder restituisce valori positivi in senso orario
   motor_task_args(motor2, 200, &pid2, -70.0f),  //riferimento positivo -> va avanti
   motor_task_args(motor3, 150, &pid3, -50.0f),
   motor_task_args(motor4, 150, &pid4, -30.0f),
