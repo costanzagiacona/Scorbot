@@ -28,28 +28,28 @@
 #define MOTOR_3_PWM PE6   //3     // Motor 3 spin pwm
 #define MOTOR_3_CHA PF8   //A10   // Motor 3 encoder A channel
 #define MOTOR_3_CHB PA15  //10    // Motor 3 encoder B channel        PWM
-#define MOTOR_3_END PG7   //35    // Motor 3 endstop switch //NON COLLEGATO 
+#define MOTOR_3_END PG7   //35    // Motor 3 endstop switch //NON COLLEGATO
 
 #define MOTOR_4_INA PG0  //28    // Motor 4 spin direction
 #define MOTOR_4_INB PG1  //29    // Motor 4 spin direction
 #define MOTOR_4_PWM PA1  //6     // Motor 4 spin pwm
 #define MOTOR_4_CHA PF9  //A11   // Motor 4 encoder A channel
 #define MOTOR_4_CHB PB5  //11    // Motor 4 encoder B channel
-#define MOTOR_4_END PG6  //34    // Motor 4 endstop switch //NON COLLEGATO 
+#define MOTOR_4_END PG6  //34    // Motor 4 endstop switch //NON COLLEGATO
 
 #define MOTOR_5_INA PB3   //49    // Motor 5 spin direction            PWM
 #define MOTOR_5_INB PB4   //48    // Motor 5 spin direction
 #define MOTOR_5_PWM PE1   //7     // Motor 5 spin pwm
 #define MOTOR_5_CHA PF10  //A12   // Motor 5 encoder A channel
 #define MOTOR_5_CHB PE2   //12    // Motor 5 encoder B channel
-#define MOTOR_5_END PG5   //33    // Motor 5 endstop switch //NON COLLEGATO 
+#define MOTOR_5_END PG5   //33    // Motor 5 endstop switch //NON COLLEGATO
 
 #define MOTOR_6_INA PE4  //47    // Motor 6 spin direction
 #define MOTOR_6_INB PB6  //46    // Motor 6 spin direction             PWM
 #define MOTOR_6_PWM PE0  //8     // Motor 6 spin pwm
 #define MOTOR_6_CHA PF4  //A13   // Motor 6 encoder A channel
 #define MOTOR_6_CHB PE3  //13    // Motor 6 encoder B channel
-#define MOTOR_6_END PG4  //32    // Motor 6 endstop switch //NON COLLEGATO 
+#define MOTOR_6_END PG4  //32    // Motor 6 endstop switch //NON COLLEGATO
 
 // ============================================================
 // Parameters
@@ -67,28 +67,28 @@
 #define PID_1_POLE 0.0  // Motor 1 PID dirty derivative pole
 
 #define PID_2_DIV 1.0   // Motor 2 PID encoder error divider
-#define PID_2_KP 10.0    // Motor 2 PID proportional coefficient
+#define PID_2_KP 10.0   // Motor 2 PID proportional coefficient
 #define PID_2_KI 1.0    // Motor 2 PID integral coefficient
 #define PID_2_KD 1.0    // Motor 2 PID derivative coefficient
 #define PID_2_SAT 0.0   // Motor 2 PID integral saturation
 #define PID_2_POLE 0.0  // Motor 2 PID dirty derivative pole
 
 #define PID_3_DIV 1.0   // Motor 3 PID encoder error divider
-#define PID_3_KP 8.0    // Motor 3 PID proportional coefficient
-#define PID_3_KI 0.0    // Motor 3 PID integral coefficient
+#define PID_3_KP 6.0    // Motor 3 PID proportional coefficient
+#define PID_3_KI 1.0    // Motor 3 PID integral coefficient
 #define PID_3_KD 0.0    // Motor 3 PID derivative coefficient
 #define PID_3_SAT 0.0   // Motor 3 PID integral saturation
 #define PID_3_POLE 0.0  // Motor 3 PID dirty derivative pole
 
 #define PID_4_DIV 1.0   // Motor 4 PID encoder error divider
-#define PID_4_KP 1.0    // Motor 4 PID proportional coefficient
-#define PID_4_KI 0.0    // Motor 4 PID integral coefficient
+#define PID_4_KP 5.0    // Motor 4 PID proportional coefficient
+#define PID_4_KI 1.0    // Motor 4 PID integral coefficient
 #define PID_4_KD 0.0    // Motor 4 PID derivative coefficient
 #define PID_4_SAT 0.0   // Motor 4 PID integral saturation
 #define PID_4_POLE 0.0  // Motor 4 PID dirty derivative pole
 
 #define PID_5_DIV 1.0   // Motor 5 PID encoder error divider
-#define PID_5_KP 1.0    // Motor 5 PID proportional coefficient
+#define PID_5_KP 8.0    // Motor 5 PID proportional coefficient
 #define PID_5_KI 0.0    // Motor 5 PID integral coefficient
 #define PID_5_KD 0.0    // Motor 5 PID derivative coefficient
 #define PID_5_SAT 0.0   // Motor 5 PID integral saturation
@@ -172,11 +172,11 @@ PID pid1, pid2, pid3, pid4, pid5, pid6;
 //motor_task_args args = { motor2, 200,  &pid2,  70.0f };  // Imposta PWM a 100 per il motore
 
 motor_task_args motors[6] = {
-  motor_task_args(motor1, 200, &pid1, 200.0f), //200 //riferimento positivo -> giro antiorario   --- get.Encoder restituisce valori positivi in senso orario
-  motor_task_args(motor2, 200, &pid2, 0.0f),  //riferimento positivo -> va avanti
-  motor_task_args(motor3, 150, &pid3, 50.0f), //riferimento positivo -> verso alto
-  motor_task_args(motor4, 150, &pid4, 0.0f),
-  motor_task_args(motor5, 100, &pid5, 0.0f),
+  motor_task_args(motor1, 200, &pid1, 0.0f),   //200 //riferimento positivo -> giro antiorario   --- get.Encoder restituisce valori positivi in senso orario
+  motor_task_args(motor2, 200, &pid2, 0.0f),   //riferimento positivo -> va avanti
+  motor_task_args(motor3, 150, &pid3, 0.0f),  //30 //riferimento positivo -> verso alto 
+  motor_task_args(motor4, 150, &pid4, 0.0f), //riferimento positivo -> verso l'alto
+  motor_task_args(motor5, 100, &pid5, -50.0f), //100 //riferimento positivo -> verso il basso
   motor_task_args(motor6, 100, &pid6, 0.0f)
 };
 
@@ -185,17 +185,19 @@ motor_task_args motors[6] = {
 
 void setup() {
   // Inizializzazione delle risorse
-  Serial.begin(115200);  // Inizializza la comunicazione seriale 
+  Serial.begin(115200);  // Inizializza la comunicazione seriale
   Serial.println("\n------------NUOVO RUN--------------");
-  Serial.println("\n------------NUOVO RUN--------------");
-  Serial.println("\n------------NUOVO RUN--------------");
+  // Serial.println("\n------------NUOVO RUN--------------");
+  // Serial.println("\n------------NUOVO RUN--------------");
+
+
 
   // Variabile per controllare se il robot deve tornare indietro
   //returning = false;
   //Variabile per controllare se il robot deve rimanere fermo, dopo returning
   //idle = false;
 
-  motor2.setEncoder(0);
+  //motor2.setEncoder(0);
 
   // Inizializzazione dei PID con i parametri definiti
   pid1.setup(PID_1_KP, PID_1_KI, PID_1_KD);
@@ -205,7 +207,7 @@ void setup() {
   pid5.setup(PID_5_KP, PID_5_KI, PID_5_KD);
   pid6.setup(PID_6_KP, PID_6_KI, PID_6_KD);
 
-  //motor3.driveMotor(-150);
+  //motor6.driveMotor(150);  // 6 NON FUNZIONA 
   // // Crea i task
   //valore più alto -> priorità più alta
   //          (funzione task, nome task, dimensione della pila del task in termini di parole, argomenti, priorità, puntatore)
@@ -214,7 +216,7 @@ void setup() {
   // xTaskCreate(pidTask, "PidTask", 1000, &args, 2, NULL);                         // Priorità 2: Controllo PID (critico in tempo reale)
   // xTaskCreate(moveMotor, "MoveMotor", 1000, &args, 1, NULL);                     // Priorità 1: Attuazione del motore (critico)
 
-  // Passa l'intero array motors ai task
+  // // Passa l'intero array motors ai task
   xTaskCreate(robotStateManager, "RobotStateManager", 1000, motors, 10, NULL);
   xTaskCreate(read_motor_encoders, "ReadEncoders", 1000, motors, 9, NULL);  // Passa l'intero array
   xTaskCreate(pidTask, "PidTask", 1000, motors, 8, NULL);                   // Passa l'intero array
@@ -228,5 +230,4 @@ void loop() {
   // long valore = motor1.getEncoder(); // prendi il valore
   // Serial.println(valore); // stampalo sul monitor seriale
   // //Serial.println(mot1_cha.state());
-  
 }
