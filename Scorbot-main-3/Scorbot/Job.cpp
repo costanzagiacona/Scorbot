@@ -22,7 +22,7 @@ int volatile motorsAtHomeCount[6] = { 0, 0, 0, 0, 0, 0 };
 bool volatile bool_motorsAtHomeCount = false;
 
 // variabile epsilon per la differenza tra riferimento e posizione attuale
-int epsilon[6] = { 22, 16, 25, 15, 26, 15 };
+int epsilon[6] = { 22, 16, 25, 5, 26, 15 };
 
 //calcolo WCET
 uint32_t wcet_manager = 0;
@@ -98,7 +98,7 @@ void robotStateManager(void *arg) {
           //Serial.println(motor.getEncoder());
 
           // Controlla se il motore ha raggiunto il target
-          if (i == 2) {  //-----------------------------------------------------------------------------------------------------------
+          if (i == 3 || i == 2) {  //-----------------------------------------------------------------------------------------------------------
             Serial.print("Encoder ");
             Serial.print(i + 1);
             Serial.print(": ");
@@ -192,15 +192,15 @@ void robotStateManager(void *arg) {
             for (int i = 0; i < N_Motors; i++) {
               args[i].reference = -args[i].reference;
               //args[i].reference = 0;
-              if (i == 0) args[i].reference = 0;
-              if (i == 2) args[i].reference = -args[i].reference / 2;
+              if (i == 0 || i == 3) args[i].reference = 0;
+              //if (i == 2) args[i].reference = -args[i].reference / 2;
               //Serial.println(args[i].reference);
             }
             target = false;
           }
 
           // Controlla se il motore ha raggiunto casa
-          if (i == 2) {  //-----------------------------------------------------------------------------------------------------------
+          if (i == 3 || i == 2) {  //-----------------------------------------------------------------------------------------------------------
             Serial.print("Encoder ");
             Serial.print(i + 1);
             Serial.print(": ");
