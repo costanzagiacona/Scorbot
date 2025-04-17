@@ -21,8 +21,8 @@ bool volatile bool_motorsAtTargetCount = false;  // Contatore dei motori che son
 int volatile motorsAtHomeCount[6] = { 0, 0, 0, 0, 0, 0 };
 bool volatile bool_motorsAtHomeCount = false;
 
-// variabile epsilon per vedere la differenza tra riferimento e posizione attuale
-int epsilon[6] = { 22, 16, 25, 5, 26, 5 };
+// variabile epsilon per la differenza tra riferimento e posizione attuale
+int epsilon[6] = { 22, 16, 25, 15, 26, 15 };
 
 //calcolo WCET
 uint32_t wcet_manager = 0;
@@ -98,19 +98,19 @@ void robotStateManager(void *arg) {
           //Serial.println(motor.getEncoder());
 
           // Controlla se il motore ha raggiunto il target
-          if (i == 4) {  //-----------------------------------------------------------------------------------------------------------
-            // Serial.print("Encoder ");
-            // Serial.print(i + 1);
-            // Serial.print(": ");
-            // Serial.println(motor.getEncoder());
-            // Serial.print("Target:");
-            // Serial.println(target_position);
-            // Serial.print("Distanza da target: ");
-            // //Serial.println(abs(abs(motor.getEncoder()) - abs(target_position)));
-            // Serial.println(abs(motor.getEncoder() - target_position));
-            // // Serial.print("Finecorsa: ");
-            // // Serial.println(motor.isInEndStop());
-            // Serial.println("");
+          if (i == 2) {  //-----------------------------------------------------------------------------------------------------------
+            Serial.print("Encoder ");
+            Serial.print(i + 1);
+            Serial.print(": ");
+            Serial.println(motor.getEncoder());
+            Serial.print("Target:");
+            Serial.println(target_position);
+            Serial.print("Distanza da target: ");
+            //Serial.println(abs(abs(motor.getEncoder()) - abs(target_position)));
+            Serial.println(abs(motor.getEncoder() - target_position));
+            // Serial.print("Finecorsa: ");
+            // Serial.println(motor.isInEndStop());
+            Serial.println("");
           }
           // if (motor.isInEndStop()) {
           //   if ((motor.getEncoder() > target_position && motor.getEncoder() > 0) || (motor.getEncoder() < target_position && motor.getEncoder() < 0)) {
@@ -123,8 +123,9 @@ void robotStateManager(void *arg) {
           if (abs(motor.getEncoder() - target_position) <= abs(epsilon[i])) {
             // Se siamo vicini alla posizione target, fermati
             motorsAtTargetCount[i] = 1;  // Incrementa il contatore
-            Serial.print("motorsAtTargetCount ++ motore ->");
-            Serial.println(i+1);
+            
+            // Serial.print("motorsAtTargetCount ++ motore ->");
+            // Serial.println(i+1);
 
 
             // Se tutti i motori hanno raggiunto il target, passiamo allo stato di ritorno
@@ -145,6 +146,13 @@ void robotStateManager(void *arg) {
             }
             break;
           }
+
+          // if (motorsAtTargetCount[i] == 0) 
+          // {
+          //   Serial.print("motorsAtTargetCount NO motore ->");
+          //   Serial.println(i+1);
+
+          // }
 
 
           currentState = PID_STATE;
@@ -192,16 +200,16 @@ void robotStateManager(void *arg) {
           }
 
           // Controlla se il motore ha raggiunto casa
-          if (i == 4) {  //-----------------------------------------------------------------------------------------------------------
-            // Serial.print("Encoder ");
-            // Serial.print(i + 1);
-            // Serial.print(": ");
-            // Serial.println(motor.getEncoder());
-            // Serial.print("Target:");
-            // Serial.println(target_position);
-            // Serial.print("Distanza da home: ");
-            // Serial.println(abs(motor.getEncoder() - target_position));
-            // Serial.println("");
+          if (i == 2) {  //-----------------------------------------------------------------------------------------------------------
+            Serial.print("Encoder ");
+            Serial.print(i + 1);
+            Serial.print(": ");
+            Serial.println(motor.getEncoder());
+            Serial.print("Target:");
+            Serial.println(target_position);
+            Serial.print("Distanza da home: ");
+            Serial.println(abs(motor.getEncoder() - target_position));
+            Serial.println("");
           }
           // Se un motore ha raggiunto la posizione di partenza (encoder <= 0)
           //if (abs(motor.getEncoder()) <= epsilon[i]) {
@@ -218,8 +226,8 @@ void robotStateManager(void *arg) {
 
             // if(i == 4)
             // {
-              Serial.print("Motore a casa -> ");
-              Serial.println(i + 1);
+              // Serial.print("Motore a casa -> ");
+              // Serial.println(i + 1);
             //}
 
             // Quando tutti i motori sono tornati alla posizione di partenza, vai a IDLE
