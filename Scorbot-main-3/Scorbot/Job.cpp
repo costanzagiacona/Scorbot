@@ -22,11 +22,11 @@ int volatile motorsAtHomeCount[6] = { 0, 0, 0, 0, 0, 0 };
 bool volatile bool_motorsAtHomeCount = false;
 
 // variabile epsilon per la differenza tra riferimento e posizione attuale
-//                 1 , 2 , 3 , 4 , 5 , 6 
-int epsilon_a[6] = { 22, 14, 25, 5, 26, 15 };
-int epsilon_r[6] = { 22, 5, 25, 5, 26, 15 };
+//                   1 , 2 , 3 , 4 , 5 , 6 
+int epsilon_a[6] = { 22, 14, 25, 26, 26, 15 };
+int epsilon_r[6] = { 22, 10, 25, 26, 26, 15 };
 
-int variabile = 1;
+int variabile = 3;
 
 //calcolo WCET
 uint32_t wcet_manager = 0;
@@ -62,7 +62,7 @@ void robotStateManager(void *arg) {
     for (int i = 0; i < N_Motors; i++) {  // Itera su tutti i motori
 
       motor_task_args &motor_args = args[i];  // Ottieni il riferimento per il motore corrente
-      Motor &motor = motor_args.motor;
+      Motor* motor = motor_args.motor;
       int &pwm = motor_args.pwm;
       float target_position = motor_args.reference;  // Ottieni il target dal riferimento della struttura
 
@@ -73,7 +73,7 @@ void robotStateManager(void *arg) {
           // Stato di riposo, i motori sono fermi
           pwm = 0;
           motor_args.pwm = 0;
-          motor.updateEncoder();
+          motor->updateEncoder();
           //Serial.println("Stato: IDLE __________________________________________");
 
           if (returning) {
@@ -94,7 +94,7 @@ void robotStateManager(void *arg) {
 
         case READING_ENCODERS:
           // Leggi solo gli encoder
-          motor.updateEncoder();
+          motor->updateEncoder();
           //Serial.println("Encoder __________________________________________");
           // Serial.print("Encoder motore ");
           // Serial.print(i + 1);
@@ -102,17 +102,17 @@ void robotStateManager(void *arg) {
           //Serial.println(motor.getEncoder());
 
           // Controlla se il motore ha raggiunto il target
-          if (i == variabile) {  //-----------------------------------------------------------------------------------------------------------
+          if (i == variabile || i == 2) {  //-----------------------------------------------------------------------------------------------------------
             Serial.print("Encoder ");
             Serial.print(i + 1);
             Serial.print(": ");
-            Serial.println(motor.getEncoder());
+            Serial.println(motor->getEncoder());
             Serial.print("Target:");
             Serial.println(target_position);
             Serial.print("Distanza da target: ");
-            Serial.println(abs(abs(motor.getEncoder()) - abs(target_position)));
-            Serial.println(abs(abs(motor.getEncoder()) - target_position));
-            Serial.println(abs(motor.getEncoder() - target_position));
+            Serial.println(abs(abs(motor->getEncoder()) - abs(target_position)));
+            // Serial.println(abs(abs(motor.getEncoder()) - target_position));
+            // Serial.println(abs(motor.getEncoder() - target_position));
             // Serial.print("Finecorsa: ");
             // Serial.println(motor.isInEndStop());
             Serial.println("");
@@ -125,7 +125,7 @@ void robotStateManager(void *arg) {
           //   }
           //   else { Serial.println("Motore va in direzione opposta finecorsa");}
           // }
-          if (abs(abs(motor.getEncoder()) - abs(target_position)) <= abs(epsilon_a[i])) {
+          if (abs(abs(motor->getEncoder()) - abs(target_position)) <= abs(epsilon_a[i])) {
             // Se siamo vicini alla posizione target, fermati
             motorsAtTargetCount[i] = 1;  // Incrementa il contatore
             
@@ -172,7 +172,7 @@ void robotStateManager(void *arg) {
         case MOVING:
           // Continua a guidare il motore con il PWM corrente
           // Legge anche encoder mentre si muove
-          motor.updateEncoder();
+          motor->updateEncoder();
           //Serial.println("Stato: MOVING__________________________________________");
           // Serial.print("MOVING motore ");
           // Serial.print(i + 1);
@@ -184,7 +184,7 @@ void robotStateManager(void *arg) {
 
         case RETURNING:
           // Esegui il ritorno (movimento inverso)
-          motor.updateEncoder();
+          motor->updateEncoder();
           //Serial.println("Stato: RETURNING__________________________________________");
           // Serial.print("RETURNING motore ");
           // Serial.print(i + 1);
@@ -197,28 +197,28 @@ void robotStateManager(void *arg) {
             for (int i = 0; i < N_Motors; i++) {
               args[i].reference = -args[i].reference;
               //args[i].reference = 0;
-              if (i == 0 || i == 3) args[i].reference = 0;
-              //if (i == 1) args[i].reference = -args[i].reference;
+              if (i == 0 ) args[i].reference = 0;
+              //if (i == 2) args[i].reference = 0;
               //Serial.println(args[i].reference);
             }
             target = false;
           }
 
           // Controlla se il motore ha raggiunto casa
-          if (i == variabile ) {  //-----------------------------------------------------------------------------------------------------------
+          if (i == variabile || i == 2 ) {  //-----------------------------------------------------------------------------------------------------------
             Serial.print("Encoder ");
             Serial.print(i + 1);
             Serial.print(": ");
-            Serial.println(motor.getEncoder());
+            Serial.println(motor->getEncoder());
             Serial.print("Target:");
             Serial.println(target_position);
             Serial.print("Distanza da home: ");
-            Serial.println(abs(abs(motor.getEncoder()) - abs(target_position)));
+            Serial.println(abs(abs(motor->getEncoder()) - abs(target_position)));
             Serial.println("");
           }
           // Se un motore ha raggiunto la posizione di partenza (encoder <= 0)
           //if (abs(motor.getEncoder()) <= epsilon[i]) {
-          if (abs(abs(motor.getEncoder()) - abs(target_position)) <= epsilon_r[i]) {
+          if (abs(abs(motor->getEncoder()) - abs(target_position)) <= epsilon_r[i]) {
             motorsAtHomeCount[i]=1;  // Incrementa il contatore
 
             bool_motorsAtHomeCount = true;
@@ -282,14 +282,14 @@ void pidTask(void *arg) {
 
     for (int i = 0; i < N_Motors; i++) {      // Itera su tutti i motori
       motor_task_args &motor_args = args[i];  // Ottieni il riferimento per il motore corrente
-      Motor &motor = motor_args.motor;
+      Motor* motor = motor_args.motor;
       PID *pid = motor_args.pid;
       float ref = motor_args.reference;
 
-      motor.updateEncoder();
+      motor->updateEncoder();
 
       // Calcola errore: riferimento - attuale
-      float error = ref - motor.getEncoder();
+      float error = ref - motor->getEncoder();
 
 
       // Calcola output del PID (cioè il comando di controllo)
@@ -300,10 +300,10 @@ void pidTask(void *arg) {
       // Aggiorna la variabile globale pwm_command con il valore calcolato
       pwm_command = pwm_cmd;
 
-      if (abs(motor.getEncoder() - ref) <= abs(epsilon_a[i])) pwm_command = 0;  //se arrivato a target
+      if (abs(motor->getEncoder() - ref) <= abs(epsilon_a[i])) pwm_command = 0;  //se arrivato a target
 
       // Se un motore ha raggiunto la posizione di partenza (encoder <= 0)
-      if (abs(motor.getEncoder()) <= epsilon_r[i] && returning == true) pwm_command = 0;
+      if (abs(motor->getEncoder()) <= epsilon_r[i] && returning == true) pwm_command = 0;
 
       if (idle) pwm_cmd = 0;  //robot fermo
 
@@ -359,10 +359,10 @@ void moveMotor(void *arg) {
 
     for (int i = 0; i < N_Motors; i++) {      // Itera su tutti i motori
       motor_task_args &motor_args = args[i];  // Ottieni il riferimento per il motore corrente
-      Motor &motor = motor_args.motor;
+      Motor* motor = motor_args.motor;
       int pwm_cmd = motor_args.pwm;
 
-      motor.updateEncoder();
+      motor->updateEncoder();
 
       pwm_command = pwm_cmd;  //poniamo la variabile globale di movimento pari alla variabile locale di movimento
 
@@ -375,9 +375,9 @@ void moveMotor(void *arg) {
       //   motor.driveMotor(pwm_command);  // Sicurezza: fermiamo il motore
 
       // Altrimenti, applica il comando calcolato dal PID
-      motor.driveMotor(pwm_command);
+      motor->driveMotor(pwm_command);
 
-      if (i == variabile) {
+      if (i == variabile || i == 2) {
 
         // Serial.print("Movimento Motore ");
         // Serial.print(i + 1);
@@ -429,9 +429,9 @@ void read_motor_encoders(void *arg) {
 
     for (int i = 0; i < N_Motors; i++) {      // Itera su tutti i motori
       motor_task_args &motor_args = args[i];  // Ottieni il riferimento per il motore corrente
-      Motor &motor = motor_args.motor;
+      Motor* motor = motor_args.motor;
 
-      motor.updateEncoder();  // Aggiorna il conteggio dell'encoder
+      motor->updateEncoder();  // Aggiorna il conteggio dell'encoder
       // Serial.print("Encoder motore ");
       // Serial.print(i + 1);
       // Serial.print(": ");
