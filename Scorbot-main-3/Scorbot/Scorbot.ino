@@ -67,7 +67,7 @@
 #define PID_1_POLE 0.0  // Motor 1 PID dirty derivative pole
 
 #define PID_2_DIV 1.0   // Motor 2 PID encoder error divider
-#define PID_2_KP 10.0   // Motor 2 PID proportional coefficient
+#define PID_2_KP 11.0   // Motor 2 PID proportional coefficient
 #define PID_2_KI 1.0    // Motor 2 PID integral coefficient
 #define PID_2_KD 1.0    // Motor 2 PID derivative coefficient
 #define PID_2_SAT 0.0   // Motor 2 PID integral saturation
@@ -81,7 +81,7 @@
 #define PID_3_POLE 0.0  // Motor 3 PID dirty derivative pole
 
 #define PID_4_DIV 1.0   // Motor 4 PID encoder error divider
-#define PID_4_KP 5.0    // Motor 4 PID proportional coefficient
+#define PID_4_KP 12.0    // Motor 4 PID proportional coefficient
 #define PID_4_KI 1.0    // Motor 4 PID integral coefficient
 #define PID_4_KD 0.0    // Motor 4 PID derivative coefficient
 #define PID_4_SAT 0.0   // Motor 4 PID integral saturation
@@ -172,13 +172,23 @@ PID pid1, pid2, pid3, pid4, pid5, pid6;
 //motor_task_args args = { motor2, 200,  &pid2,  70.0f };  // Imposta PWM a 100 per il motore
 
 motor_task_args motors[6] = {
-  motor_task_args(motor1, 200, &pid1, -200.0f),   //200 //riferimento positivo -> giro antiorario   --- get.Encoder restituisce valori positivi in senso orario
-  motor_task_args(motor2, 200, &pid2, 0.0f),   //riferimento positivo -> va avanti //NON USARE
-  motor_task_args(motor3, 150, &pid3, 30.0f),  //30 //riferimento positivo -> verso alto ----- in alto impazzisce
-  motor_task_args(motor4, 150, &pid4, 20.0f), //20 //riferimento positivo -> verso l'alto
-  motor_task_args(motor5, 100, &pid5, -30.0f), //-30 //riferimento positivo -> verso il basso
+  motor_task_args(motor1, 200, &pid1, 0.0f),   //-200 //riferimento positivo -> giro antiorario   --- get.Encoder restituisce valori positivi in senso orario
+  motor_task_args(motor2, 200, &pid2, 20.0f),   //riferimento positivo -> va avanti //NON USARE
+  motor_task_args(motor3, 150, &pid3, 0.0f),  //30 //riferimento positivo -> verso alto ----- in alto impazzisce
+  motor_task_args(motor4, 150, &pid4, 0.0f), //20 //riferimento positivo -> verso l'alto
+  motor_task_args(motor5, 100, &pid5, 0.0f), //-30 //riferimento positivo -> verso il basso
   motor_task_args(motor6, 100, &pid6, 0.0f) //motore 6 non funziona
 };
+
+//ROBOT FERMO
+// motor_task_args motors[6] = {
+//   motor_task_args(motor1, 200, &pid1, 0.0f),   //-200 //riferimento positivo -> giro antiorario   --- get.Encoder restituisce valori positivi in senso orario
+//   motor_task_args(motor2, 200, &pid2, 0.0f),   //riferimento positivo -> va avanti //NON USARE
+//   motor_task_args(motor3, 150, &pid3, 0.0f),  //30 //riferimento positivo -> verso alto ----- in alto impazzisce
+//   motor_task_args(motor4, 150, &pid4, 0.0f), //20 //riferimento positivo -> verso l'alto
+//   motor_task_args(motor5, 100, &pid5, 0.0f), //-30 //riferimento positivo -> verso il basso
+//   motor_task_args(motor6, 100, &pid6, 0.0f) //motore 6 non funziona
+// };
 
 //per modificare gli elementi fai motors[0].reference = 100.0f;
 
