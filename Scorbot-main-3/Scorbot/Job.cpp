@@ -24,7 +24,7 @@ bool volatile bool_motorsAtHomeCount = false;
 // variabile epsilon per la differenza tra riferimento e posizione attuale
 //                   1 , 2 , 3 , 4 , 5 , 6 
 int epsilon_a[6] = { 22, 14, 25, 26, 26, 15 };
-int epsilon_r[6] = { 22, 10, 25, 26, 26, 15 };
+int epsilon_r[6] = { 20, 10, 25, 20, 26, 15 };
 
 int variabile = 3;
 
