@@ -9,7 +9,7 @@
 // DC Motors PINs
 #define MOTORS_EN PG10  //38    // Motors enabler -  pin per abilitare i motori, controllare la direzione di rotazione, la PWM (velocità), gli encoder e gli endstop switch (fine corsa).
 
-#define MOTOR_1_INA PG13  //22   // Motor 1 spin direction -> giro orario INA LOW e INB HIGH
+#define MOTOR_1_INA PG13  //22    // Motor 1 spin direction -> giro orario INA LOW e INB HIGH
 #define MOTOR_1_INB PG14  //23    // Motor 1 spin direction
 #define MOTOR_1_PWM PE7   //5     // Motor 1 spin pwm
 #define MOTOR_1_CHA PF6   //A8    // Motor 1 encoder A channel
@@ -81,14 +81,14 @@
 #define PID_3_POLE 0.0  // Motor 3 PID dirty derivative pole
 
 #define PID_4_DIV 1.0   // Motor 4 PID encoder error divider
-#define PID_4_KP 10.0    // Motor 4 PID proportional coefficient
+#define PID_4_KP 10.0   // Motor 4 PID proportional coefficient
 #define PID_4_KI 1.0    // Motor 4 PID integral coefficient
 #define PID_4_KD 0.0    // Motor 4 PID derivative coefficient
 #define PID_4_SAT 0.0   // Motor 4 PID integral saturation
 #define PID_4_POLE 0.0  // Motor 4 PID dirty derivative pole
 
 #define PID_5_DIV 1.0   // Motor 5 PID encoder error divider
-#define PID_5_KP 12.0    // Motor 5 PID proportional coefficient
+#define PID_5_KP 12.0   // Motor 5 PID proportional coefficient
 #define PID_5_KI 0.0    // Motor 5 PID integral coefficient
 #define PID_5_KD 0.0    // Motor 5 PID derivative coefficient
 #define PID_5_SAT 0.0   // Motor 5 PID integral saturation
@@ -154,10 +154,6 @@ Motor motor4 = Motor(mot4_ina, mot4_inb, mot4_pwm, mot4_cha, mot4_chb, mot4_end)
 Motor motor5 = Motor(mot5_ina, mot5_inb, mot5_pwm, mot5_cha, mot5_chb, mot5_end);
 Motor motor6 = Motor(mot6_ina, mot6_inb, mot6_pwm, mot6_cha, mot6_chb, mot6_end);
 
-void led_toggle(void *arg) {
-  digitalWrite(LED_BUILTIN, !digitalRead(LED_BUILTIN));
-  Serial.println("Task LED eseguito!");
-}
 
 // setup dei PID
 void setupPID(PID &pid, float kp, float ki, float kd) {
@@ -169,15 +165,13 @@ void setupPID(PID &pid, float kp, float ki, float kd) {
 PID pid1, pid2, pid3, pid4, pid5, pid6;
 
 //MOTORI
-//motor_task_args args = { motor2, 200,  &pid2,  70.0f };  // Imposta PWM a 100 per il motore
-
 motor_task_args motors[6] = {
-  motor_task_args(&motor1, 200, &pid1, -200.0f),   //-200 //riferimento positivo -> giro antiorario   --- get.Encoder restituisce valori positivi in senso orario
-  motor_task_args(&motor2, 200, &pid2, 0.0f),   //20 //riferimento positivo -> va avanti 
-  motor_task_args(&motor3, 150, &pid3, 0.0f),  //30 //riferimento positivo -> verso alto ----- in alto impazzisce
-  motor_task_args(&motor4, 150, &pid4, -20.0f), //20 //riferimento positivo -> verso l'alto
-  motor_task_args(&motor5, 100, &pid5, 20.0f), //-30 //riferimento positivo -> verso il basso
-  motor_task_args(&motor6, 100, &pid6, 0.0f) //motore 6 non funziona
+  motor_task_args(&motor1, 200, &pid1, -200.0f),  //-200 //riferimento positivo -> giro antiorario   --- get.Encoder restituisce valori positivi in senso orario
+  motor_task_args(&motor2, 200, &pid2, 0.0f),     //20 //riferimento positivo -> va avanti
+  motor_task_args(&motor3, 150, &pid3, 0.0f),     //30 //riferimento positivo -> verso alto ----- in alto impazzisce
+  motor_task_args(&motor4, 150, &pid4, -20.0f),   //20 //riferimento positivo -> verso l'alto
+  motor_task_args(&motor5, 100, &pid5, 20.0f),    //-30 //riferimento positivo -> verso il basso
+  motor_task_args(&motor6, 100, &pid6, 0.0f)      //motore 6 non funziona
 };
 
 //ROBOT FERMO
@@ -190,24 +184,10 @@ motor_task_args motors[6] = {
 //   motor_task_args(&motor6, 100, &pid6, 0.0f) //motore 6 non funziona
 // };
 
-//per modificare gli elementi fai motors[0].reference = 100.0f;
-
-
 void setup() {
   // Inizializzazione delle risorse
   Serial.begin(115200);  // Inizializza la comunicazione seriale
   Serial.println("\n------------NUOVO RUN--------------");
-  // Serial.println("\n------------NUOVO RUN--------------");
-  // Serial.println("\n------------NUOVO RUN--------------");
-
-
-
-  // Variabile per controllare se il robot deve tornare indietro
-  //returning = false;
-  //Variabile per controllare se il robot deve rimanere fermo, dopo returning
-  //idle = false;
-
-  //motor2.setEncoder(0);
 
   // Inizializzazione dei PID con i parametri definiti
   pid1.setup(PID_1_KP, PID_1_KI, PID_1_KD);
@@ -217,27 +197,14 @@ void setup() {
   pid5.setup(PID_5_KP, PID_5_KI, PID_5_KD);
   pid6.setup(PID_6_KP, PID_6_KI, PID_6_KD);
 
-  //motor6.driveMotor(150);  // 6 NON FUNZIONA 
-  // // Crea i task
-  //valore più alto -> priorità più alta
-  //          (funzione task, nome task, dimensione della pila del task in termini di parole, argomenti, priorità, puntatore)
-  // xTaskCreate(robotStateManager, "RobotStateManager", 1000, &args, 4, NULL);     // Priorità 4: Gestione dello stato (non critico in tempo reale)
-  // xTaskCreate(read_motor_encoders, "ReadEncoders", 1000, &args.motor, 3, NULL);  // Priorità 3: Lettura degli encoder (può essere meno critico)
-  // xTaskCreate(pidTask, "PidTask", 1000, &args, 2, NULL);                         // Priorità 2: Controllo PID (critico in tempo reale)
-  // xTaskCreate(moveMotor, "MoveMotor", 1000, &args, 1, NULL);                     // Priorità 1: Attuazione del motore (critico)
-
-  // // Passa l'intero array motors ai task
+  // Passa l'intero array motors ai task
   xTaskCreate(robotStateManager, "RobotStateManager", 1000, motors, 10, NULL);
-  xTaskCreate(read_motor_encoders, "ReadEncoders", 1000, motors, 9, NULL);  // Passa l'intero array
-  xTaskCreate(pidTask, "PidTask", 1000, motors, 8, NULL);                   // Passa l'intero array
+  xTaskCreate(read_motor_encoders, "ReadEncoders", 1000, motors, 9, NULL);
+  xTaskCreate(pidTask, "PidTask", 1000, motors, 8, NULL);
   xTaskCreate(moveMotor, "MoveMotor", 1000, motors, 7, NULL);
   xTaskCreate(loggerTask, "WCET", 1000, NULL, 1, NULL);
   vTaskStartScheduler();
 }
 
 void loop() {
-  // motor1.updateEncoder(); // aggiorna il valore
-  // long valore = motor1.getEncoder(); // prendi il valore
-  // Serial.println(valore); // stampalo sul monitor seriale
-  // //Serial.println(mot1_cha.state());
 }

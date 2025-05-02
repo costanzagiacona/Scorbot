@@ -111,6 +111,7 @@ private:
   #endif
 };
 
+
 // ==================================================
 // Motor
 // ==================================================
@@ -137,9 +138,6 @@ public:
   void driveMotor(int16_t spwm);      // Assign pwm with sign for spin direction
 
   bool isInEndStop();               // Check if motor is at endstop
-
-
-
 
 
 public:

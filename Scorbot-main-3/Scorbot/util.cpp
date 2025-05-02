@@ -1,5 +1,5 @@
 #include "util.h"
-#include<FreeRTOS.h>
+#include <FreeRTOS.h>
 #include "control.h"
 #include <Arduino.h>
 
@@ -10,8 +10,8 @@
 float remap1(float v, float a1, float b1, float a2, float b2, bool clamp) {
   clamp = false;
   float res = a2 + (v - a1) / (b1 - a1) * (b2 - a2);
-  if(clamp){
-    if(a2 <= b2) {
+  if (clamp) {
+    if (a2 <= b2) {
       return min(max(res, a2), b2);
     } else {
       return min(max(res, b2), a2);
@@ -21,27 +21,27 @@ float remap1(float v, float a1, float b1, float a2, float b2, bool clamp) {
   }
 }
 
-float remap2( long v,  long a1,  long b1, float a2, float b2, bool clamp ){
+float remap2(long v, long a1, long b1, float a2, float b2, bool clamp) {
   clamp = false;
-  return remap1((float) v, (float) a1, (float) b1, a2, b2, clamp);
+  return remap1((float)v, (float)a1, (float)b1, a2, b2, clamp);
 }
 
-long remap3(float v, float a1, float b1,  long a2,  long b2, bool clamp){
+long remap3(float v, float a1, float b1, long a2, long b2, bool clamp) {
   clamp = false;
-  return round(remap1(v, a1, b1, (float) a2, (float) b2, clamp));
+  return round(remap1(v, a1, b1, (float)a2, (float)b2, clamp));
 }
-long remap4( long v,  long a1,  long b1,  long a2,  long b2, bool clamp){
+long remap4(long v, long a1, long b1, long a2, long b2, bool clamp) {
   clamp = false;
-  return round(remap1((float) v, (float) a1, (float) b1, (float) a2, (float) b2, clamp));
+  return round(remap1((float)v, (float)a1, (float)b1, (float)a2, (float)b2, clamp));
 }
 // ricorda che hai tolto const &
-void byteToHex( uint8_t  byte, char  hhex, char  lhex) {
+void byteToHex(uint8_t byte, char hhex, char lhex) {
   nibbleToHex((byte & 0b00001111) >> 0, lhex);
   nibbleToHex((byte & 0b11110000) >> 4, hhex);
 }
 
-void nibbleToHex( uint8_t  nibble, char  hex) {
-  switch(nibble) {
+void nibbleToHex(uint8_t nibble, char hex) {
+  switch (nibble) {
     case 0u:
       hex = '0';
       break;
@@ -93,11 +93,11 @@ void nibbleToHex( uint8_t  nibble, char  hex) {
   }
 }
 
-float rad2deg(float rad){
+float rad2deg(float rad) {
   return rad / PI * 180.0f;
 }
 
-float deg2rad(float deg){
+float deg2rad(float deg) {
   return deg / 180.0f * PI;
 }
 
@@ -106,40 +106,40 @@ float deg2rad(float deg){
 // Timer
 // ==================================================
 
-Timer::Timer(){
+Timer::Timer() {
   this->delta = 0;
   this->time = 0;
 }
 
-Timer::Timer(unsigned long delta){
+Timer::Timer(unsigned long delta) {
   this->delta = delta;
   this->time = 0;
 }
 
-Timer::Timer(unsigned long delta, unsigned long time){
+Timer::Timer(unsigned long delta, unsigned long time) {
   this->delta = delta;
   this->time = time;
 }
 
-void Timer::setup(unsigned long delta){
+void Timer::setup(unsigned long delta) {
   this->delta = delta;
 }
 
-void Timer::reset(unsigned long time){
+void Timer::reset(unsigned long time) {
   this->time = time;
 }
 
-bool Timer::check(unsigned long time){
+bool Timer::check(unsigned long time) {
   unsigned long dt;
 
-  if(time < this->time){
+  if (time < this->time) {
     dt = 4294967295 - this->time;
     dt = time + dt + 1;
   } else {
     dt = time - this->time;
   }
 
-  if(dt >= delta){
+  if (dt >= delta) {
     this->time = time;
     return true;
   } else {

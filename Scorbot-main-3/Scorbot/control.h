@@ -5,8 +5,7 @@
 #include "math.h"
 
 
-class Integrator final
-{
+class Integrator final {
 public:
   Integrator() {}
   ~Integrator() {}
@@ -18,7 +17,7 @@ public:
   void step();
   float output();
   float evolve(float u);
-  
+
 private:
   float ts;
   float x;
@@ -26,8 +25,7 @@ private:
 };
 
 
-class Filter final
-{
+class Filter final {
 public:
   void init(float time_sampling, float tau);
   void reset();
@@ -47,14 +45,13 @@ private:
 };
 
 
-class PID final
-{
+class PID final {
 public:
-  void init(float time_sampling, 
-    float err_deadzone, 
-    float int_sat, float int_reset_err_thr, float int_reset_div, float int_reset_val, 
-    float der_filter_pole, 
-    bool bumpless);
+  void init(float time_sampling,
+            float err_deadzone,
+            float int_sat, float int_reset_err_thr, float int_reset_div, float int_reset_val,
+            float der_filter_pole,
+            bool bumpless);
   void setup(float kp, float ki, float kd);
   void reset();
   void reset(float xi, float xd);
@@ -78,11 +75,11 @@ private:
   float kp = 0.0;
   float ki = 0.0;
   float kd = 0.0;
-  
+
   float e = 0.0;
   float xi = 0.0;
   float xd = 0.0;
-  
+
   float A = 0.0;
   float B = 0.0;
   float C = 0.0;
