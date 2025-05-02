@@ -57,7 +57,7 @@ void robotStateManager(void *arg) {
     // motorsAtTargetCount = 0;  // Reset del contatore ogni ciclo
     // motorsAtHomeCount = 0;    // Reset del contatore di ritorno
 
-    uint32_t start = micros();  // inizio conteggio tempo esecuzione
+    uint32_t start = xTaskGetTickCount();  // inizio conteggio tempo esecuzione
 
     for (int i = 0; i < N_Motors; i++) {  // Itera su tutti i motori
 
@@ -95,7 +95,7 @@ void robotStateManager(void *arg) {
         case READING_ENCODERS:
           // Leggi solo gli encoder
           motor->updateEncoder();
-          //Serial.println("Encoder __________________________________________");
+          // Serial.println("Encoder __________________________________________");
           // Serial.print("Encoder motore ");
           // Serial.print(i + 1);
           // Serial.print(": ");
@@ -185,11 +185,11 @@ void robotStateManager(void *arg) {
         case RETURNING:
           // Esegui il ritorno (movimento inverso)
           motor->updateEncoder();
-          //Serial.println("Stato: RETURNING__________________________________________");
+          // Serial.println("Stato: RETURNING__________________________________________");
           // Serial.print("RETURNING motore ");
           // Serial.print(i + 1);
-          //Serial.print(" → PWM: ");
-          //Serial.print(-pwm);
+          // Serial.print(" → PWM: ");
+          // Serial.print(-pwm);
           // Movimento inverso
 
           if (target) {
@@ -247,7 +247,7 @@ void robotStateManager(void *arg) {
           }
           break;
       }
-      uint32_t end = micros();
+      uint32_t end = xTaskGetTickCount();
       uint32_t elapsed = end - start;
 
       // Registro WCET
@@ -278,7 +278,7 @@ void pidTask(void *arg) {
 
 
   for (;;) {
-    uint32_t start = micros();  // inizio conteggio tempo esecuzione
+    uint32_t start = xTaskGetTickCount();  // inizio conteggio tempo esecuzione
 
     for (int i = 0; i < N_Motors; i++) {      // Itera su tutti i motori
       motor_task_args &motor_args = args[i];  // Ottieni il riferimento per il motore corrente
@@ -324,7 +324,7 @@ void pidTask(void *arg) {
       // Serial.println(pwm_cmd);
       // Serial.println("");
 
-      uint32_t end = micros();
+      uint32_t end = xTaskGetTickCount();
       uint32_t elapsed = end - start;
 
       // Registro WCET
@@ -355,7 +355,7 @@ void moveMotor(void *arg) {
   //Serial.print("Task Motori: ");
 
   for (;;) {
-    uint32_t start = micros();
+    uint32_t start = xTaskGetTickCount();
 
     for (int i = 0; i < N_Motors; i++) {      // Itera su tutti i motori
       motor_task_args &motor_args = args[i];  // Ottieni il riferimento per il motore corrente
@@ -389,7 +389,7 @@ void moveMotor(void *arg) {
       //Serial.print("Finecorsa? ");
       //Serial.println(motor.isInEndStop());
 
-      uint32_t end = micros();
+      uint32_t end = xTaskGetTickCount();
       uint32_t elapsed = end - start;
 
       // Registro WCET
@@ -425,7 +425,7 @@ void read_motor_encoders(void *arg) {
 
   for (;;) {
 
-    uint32_t start = micros();
+    uint32_t start = xTaskGetTickCount();
 
     for (int i = 0; i < N_Motors; i++) {      // Itera su tutti i motori
       motor_task_args &motor_args = args[i];  // Ottieni il riferimento per il motore corrente
@@ -438,7 +438,7 @@ void read_motor_encoders(void *arg) {
       // Serial.println(motor.getEncoder());
     }
 
-    uint32_t end = micros();
+    uint32_t end = xTaskGetTickCount();
     uint32_t elapsed = end - start;
 
     // Registro WCET
@@ -460,18 +460,27 @@ void read_motor_encoders(void *arg) {
 void loggerTask(void *pvParameters) {
   const TickType_t freq = pdMS_TO_TICKS(1000);  // ogni 1 secondo
   TickType_t xLastWakeTime = xTaskGetTickCount();
+
   for (;;) {
-    // Serial.println("=== WCET (in µs) ===");
-    // Serial.print("PID: ");
-    // Serial.println(wcet_pid);
-    // Serial.print("Encoders: ");
-    // Serial.println(wcet_encoder);
-    // Serial.print("MoveMotor: ");
-    // Serial.println(wcet_motor);
-    // Serial.print("StateManager: ");
-    // Serial.println(wcet_manager);
-    // Serial.println("====================");
+    TickType_t total_wcet = wcet_pid + wcet_encoder + wcet_motor + wcet_manager;
+
+    Serial.println("=== WCET (in ms) ===");
+    Serial.print("PID: "); Serial.println(wcet_pid);
+    Serial.print("Encoders: "); Serial.println(wcet_encoder);
+    Serial.print("MoveMotor: "); Serial.println(wcet_motor);
+    Serial.print("StateManager: "); Serial.println(wcet_manager);
+    Serial.print("TOT: "); Serial.print(total_wcet); Serial.println(" ms");
+
+    if (total_wcet > 20) {
+      Serial.println("ATTENZIONE: Superato limite di 20 ms!");
+    }
+
+    Serial.println("====================");
+
+    // resetta i WCET ogni secondo
+    wcet_pid = wcet_encoder = wcet_motor = wcet_manager = 0;
 
     vTaskDelayUntil(&xLastWakeTime, freq);
   }
 }
+
