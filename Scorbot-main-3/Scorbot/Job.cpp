@@ -276,7 +276,7 @@ void moveMotor(void *arg) {  // Applica il comando PWM al motore per farlo muove
 
   motor_task_args *args = (motor_task_args *)arg;
 
-  const TickType_t xFrequency = 10 / portTICK_PERIOD_MS;  // Ciclo ogni 10 ms <---------------------------------DA CONTROLLARE
+  const TickType_t xFrequency = 10 / portTICK_PERIOD_MS;  // Rilascio ogni 10 ms 
   TickType_t xLastWakeTime = xTaskGetTickCount();
 
   //Serial.print("Task Motori: ");
