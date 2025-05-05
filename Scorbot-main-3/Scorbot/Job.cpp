@@ -206,8 +206,6 @@ void robotStateManager(void *arg) {
       if (elapsed > wcet_manager) {
         wcet_manager = elapsed;
       }
-
-      //vTaskDelayUntil(&xLastWakeTime, xFrequency);
     }
     vTaskDelayUntil(&xLastWakeTime, xFrequency);
   }
@@ -265,8 +263,6 @@ void pidTask(void *arg) {
       if (elapsed > wcet_pid) {
         wcet_pid = elapsed;
       }
-
-      //vTaskDelayUntil(&xLastWakeTime, xFrequency);
     }
     vTaskDelayUntil(&xLastWakeTime, xFrequency);
   }
@@ -317,9 +313,6 @@ void moveMotor(void *arg) {  // Applica il comando PWM al motore per farlo muove
       if (elapsed > wcet_motor) {
         wcet_motor = elapsed;
       }
-
-      // Aspetta fino al prossimo ciclo
-      //vTaskDelayUntil(&xLastWakeTime, xFrequency);
     }
     vTaskDelayUntil(&xLastWakeTime, xFrequency);
   }
@@ -357,7 +350,6 @@ void read_motor_encoders(void *arg) {
     if (elapsed > wcet_encoder) {
       wcet_encoder = elapsed;
     }
-
     vTaskDelayUntil(&xLastWakeTime, xFrequency);
   }
 }
