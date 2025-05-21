@@ -7,6 +7,11 @@
 
 #define N_Motors 6  //numero di motori
 
+#define DEBUG_PIN PD5
+const int pinPWM = PA4;
+
+#define var_d 3
+
 //FLAG
 bool volatile returning = false;  // Variabile per controllare se il robot deve tornare indietro
 bool volatile idle = false;       // Variabile per controllare se il robot deve rimanere fermo, dopo returning
@@ -41,16 +46,28 @@ volatile int pwm_command = 0;  // Contiene il comando PWM calcolato dal PID e us
 // ==================================================
 void robotStateManager(void *arg) {
 
+  //OSCILLOSCOPIO
+  digitalWrite(DEBUG_PIN, HIGH);  // Segnale di inizio misura OSCILLOSCOPIO ----------------------------------------------------------------------
+  //Serial.println("HIGH ");
+  // Segnale "alto" ~ 75% duty cycle
+  //analogWrite(pinPWM, 192); // su 8 bit (0-255)
+  // analogWrite(pinPWM, 255);
+  // delay(1000*var_d); //3 millisecondi 
+  // analogWrite(pinPWM, 0);
+
   motor_task_args *args = (motor_task_args *)arg;  // Cast dell'argomento passato a un array di motor_task_args
 
-  //Serial.print("Task Macchina a Stati__________________________________________ ");
+  // //Serial.print("Task Macchina a Stati__________________________________________ ");
 
-  const TickType_t xFrequency = 20 / portTICK_PERIOD_MS;
+  //const TickType_t xFrequency = 10 / portTICK_PERIOD_MS;
+  const TickType_t xFrequency = pdMS_TO_TICKS(20);  // ogni 1 secondo
   TickType_t xLastWakeTime = xTaskGetTickCount();
 
   for (;;) {
-    uint32_t start = micros();  // inizia conteggio tempo esecuzione
+    digitalWrite(DEBUG_PIN, HIGH);  // Segnale di inizio misura OSCILLOSCOPIO ----------------------------------------------------------------------
+  //Serial.println("ciao      ");
 
+    uint32_t start = micros();  // inizia conteggio tempo esecuzione
     for (int i = 0; i < N_Motors; i++) {  // Itera su tutti i motori
 
       motor_task_args &motor_args = args[i];  // Ottieni il riferimento per il motore corrente
@@ -84,7 +101,7 @@ void robotStateManager(void *arg) {
         case READING_ENCODERS:
           // Leggi solo gli encoder
           motor->updateEncoder();
-          // Serial.println("Encoder __________________________________________");
+          //Serial.println("Encoder __________________________________________");
           // Serial.print("Encoder motore ");
           // Serial.print(i + 1);
           // Serial.print(": ");
@@ -138,7 +155,7 @@ void robotStateManager(void *arg) {
         case MOVING:
           // Continua a guidare il motore con il PWM corrente
           motor->updateEncoder();   // Legge anche encoder mentre si muove
-          // Serial.println("Stato: MOVING__________________________________________");
+          //Serial.println("Stato: MOVING__________________________________________");
           // Serial.print("MOVING motore ");
           // Serial.print(i + 1);
           // Serial.print(" → PWM: ");
@@ -150,7 +167,7 @@ void robotStateManager(void *arg) {
         case RETURNING:
           // Esegui il ritorno (movimento inverso)
           motor->updateEncoder();
-          // Serial.println("Stato: RETURNING__________________________________________");
+          //Serial.println("Stato: RETURNING__________________________________________");
           // Serial.print("RETURNING motore ");
           // Serial.print(i + 1);
           // Serial.print(" → PWM: ");
@@ -206,7 +223,7 @@ void robotStateManager(void *arg) {
       if (elapsed > wcet_manager) {
         wcet_manager = elapsed;
       }
-    }
+  }
     vTaskDelayUntil(&xLastWakeTime, xFrequency);
   }
 }
@@ -219,12 +236,17 @@ void pidTask(void *arg) {
 
   motor_task_args *args = (motor_task_args *)arg;
 
-  const TickType_t xFrequency = 10 / portTICK_PERIOD_MS;
+  //const TickType_t xFrequency = 15 / portTICK_PERIOD_MS;
+  const TickType_t xFrequency = pdMS_TO_TICKS(20);  // ogni 1 secondo
   TickType_t xLastWakeTime = xTaskGetTickCount();
-
+  //digitalWrite(DEBUG_PIN, HIGH);  // Segnale di inizio misura OSCILLOSCOPIO ----------------------------------------------------------------------
+  //Serial.println("ciao    pid Task  ");
   //Serial.print("Task PID: ");
 
   for (;;) {
+    //digitalWrite(DEBUG_PIN, HIGH);  // Segnale di inizio misura OSCILLOSCOPIO ----------------------------------------------------------------------
+    //Serial.println("ciao    pid Task  ");
+
     uint32_t start = micros();  // inizia conteggio tempo esecuzione
 
     for (int i = 0; i < N_Motors; i++) {      // Itera su tutti i motori
@@ -264,6 +286,9 @@ void pidTask(void *arg) {
         wcet_pid = elapsed;
       }
     }
+
+    //delay(var_d); //3 millisecondi 
+
     vTaskDelayUntil(&xLastWakeTime, xFrequency);
   }
 }
@@ -276,12 +301,16 @@ void moveMotor(void *arg) {  // Applica il comando PWM al motore per farlo muove
 
   motor_task_args *args = (motor_task_args *)arg;
 
-  const TickType_t xFrequency = 10 / portTICK_PERIOD_MS;  // Rilascio ogni 10 ms 
+  //const TickType_t xFrequency = 17 / portTICK_PERIOD_MS;  // Rilascio ogni 10 ms 
+  const TickType_t xFrequency = pdMS_TO_TICKS(20);  // ogni 1 secondo
   TickType_t xLastWakeTime = xTaskGetTickCount();
-
+ // digitalWrite(DEBUG_PIN, HIGH);  // Segnale di inizio misura OSCILLOSCOPIO ----------------------------------------------------------------------
+  //Serial.println("ciao      ");
   //Serial.print("Task Motori: ");
 
   for (;;) {
+    //digitalWrite(DEBUG_PIN, HIGH);  // Segnale di inizio misura OSCILLOSCOPIO ----------------------------------------------------------------------
+  //Serial.println("ciao      ");
     uint32_t start = micros();
 
     for (int i = 0; i < N_Motors; i++) {      // Itera su tutti i motori
@@ -316,6 +345,8 @@ void moveMotor(void *arg) {  // Applica il comando PWM al motore per farlo muove
     }
     vTaskDelayUntil(&xLastWakeTime, xFrequency);
   }
+
+  
 }
 
 // ==================================================
@@ -325,11 +356,16 @@ void read_motor_encoders(void *arg) {
 
   motor_task_args *args = (motor_task_args *)arg;
 
-  const TickType_t xFrequency = 5 / portTICK_PERIOD_MS;  // Leggi ogni 5 ms
+  //const TickType_t xFrequency = 13 / portTICK_PERIOD_MS;  // Leggi ogni 5 ms
+  const TickType_t xFrequency = pdMS_TO_TICKS(20);  // ogni 1 secondo
   TickType_t xLastWakeTime = xTaskGetTickCount();        // Tempo iniziale
 
+  //digitalWrite(DEBUG_PIN, HIGH);  // Segnale di inizio misura OSCILLOSCOPIO ----------------------------------------------------------------------
+  //Serial.println("ciao   encoder taks   ");
   for (;;) {
 
+    //digitalWrite(DEBUG_PIN, HIGH);  // Segnale di inizio misura OSCILLOSCOPIO ----------------------------------------------------------------------
+  //Serial.println("ciao   encoder taks   ");
     uint32_t start = micros();
 
     for (int i = 0; i < N_Motors; i++) {      // Itera su tutti i motori
@@ -359,7 +395,7 @@ void read_motor_encoders(void *arg) {
 // TASK LOGGER -> calcola il WCET del ciclo
 // ==================================================
 void loggerTask(void *pvParameters) {
-  const TickType_t freq = pdMS_TO_TICKS(1000);  // ogni 1 secondo
+  const TickType_t freq = pdMS_TO_TICKS(20);  // ogni 1 secondo
   TickType_t xLastWakeTime = xTaskGetTickCount();
 
   for (;;) {
@@ -378,7 +414,7 @@ void loggerTask(void *pvParameters) {
     Serial.print(total_wcet);
     Serial.println(" microsecondi");
 
-    if (total_wcet > 300) {
+    if (total_wcet > 20000) {
       Serial.println("ATTENZIONE: Superato limite di 300 microsecondi!");
     }
     //Serial.println("Il ciclo di esecuzione non supera i 300 microsecondi.");
@@ -388,6 +424,19 @@ void loggerTask(void *pvParameters) {
     // resetta i WCET ogni secondo
     wcet_pid = wcet_encoder = wcet_motor = wcet_manager = 0;
 
+
     vTaskDelayUntil(&xLastWakeTime, freq);
+
+
+    //delay(var_d); //3 millisecondi 
+
+    //OSCILLOSCOPIO
+ 
+    digitalWrite(DEBUG_PIN, LOW);  // Segnale di fine task -------------------------------------------------
+ 
+   // Segnale "basso" ~ 20% duty cycle
+  //analogWrite(pinPWM, 0);
   }
+
+  
 }

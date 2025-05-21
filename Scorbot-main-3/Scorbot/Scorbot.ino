@@ -51,6 +51,11 @@
 #define MOTOR_6_CHB PE3  //13    // Motor 6 encoder B channel
 #define MOTOR_6_END PG4  //32    // Motor 6 endstop switch //NON COLLEGATO
 
+//PIN OSCILLOSCOPIO
+#define DEBUG_PIN PD5
+const int pinPWM = PA4;
+
+
 // ============================================================
 // Parameters
 // ============================================================
@@ -165,24 +170,34 @@ void setupPID(PID &pid, float kp, float ki, float kd) {
 PID pid1, pid2, pid3, pid4, pid5, pid6;
 
 //MOTORI
-motor_task_args motors[6] = {
-  motor_task_args(&motor1, 200, &pid1, -200.0f),  //-200 //riferimento positivo -> giro antiorario   --- get.Encoder restituisce valori positivi in senso orario
-  motor_task_args(&motor2, 200, &pid2, 0.0f),     //20 //riferimento positivo -> va avanti
-  motor_task_args(&motor3, 150, &pid3, 0.0f),     //30 //riferimento positivo -> verso alto ----- in alto impazzisce
-  motor_task_args(&motor4, 150, &pid4, -20.0f),   //20 //riferimento positivo -> verso l'alto
-  motor_task_args(&motor5, 100, &pid5, 20.0f),    //-30 //riferimento positivo -> verso il basso
-  motor_task_args(&motor6, 100, &pid6, 0.0f)      //motore 6 non funziona
-};
+//VECCHIO
+// motor_task_args motors[6] = {
+//   motor_task_args(&motor1, 200, &pid1, -200.0f),  //-200 //riferimento positivo -> giro antiorario   --- get.Encoder restituisce valori positivi in senso orario
+//   motor_task_args(&motor2, 200, &pid2, 0.0f),     //20 //riferimento positivo -> va avanti
+//   motor_task_args(&motor3, 150, &pid3, 0.0f),     //30 //riferimento positivo -> verso alto ----- in alto impazzisce
+//   motor_task_args(&motor4, 150, &pid4, -20.0f),   //20 //riferimento positivo -> verso l'alto
+//   motor_task_args(&motor5, 100, &pid5, 20.0f),    //-30 //riferimento positivo -> verso il basso
+//   motor_task_args(&motor6, 100, &pid6, 0.0f)      //motore 6 non funziona
+// };
+
+// motor_task_args motors[6] = {
+//   motor_task_args(&motor1, 200, &pid1, -800.0f),  //-200 //riferimento positivo -> giro antiorario   --- get.Encoder restituisce valori positivi in senso orario
+//   motor_task_args(&motor2, 200, &pid2, 0.0f),     //20 //riferimento positivo -> va avanti
+//   motor_task_args(&motor3, 150, &pid3, 0.0f),     //30 //riferimento positivo -> verso alto ----- in alto impazzisce
+//   motor_task_args(&motor4, 150, &pid4, -80.0f),   //20 //riferimento positivo -> verso l'alto
+//   motor_task_args(&motor5, 100, &pid5, 90.0f),    //-30 //riferimento positivo -> verso il basso
+//   motor_task_args(&motor6, 100, &pid6, 0.0f)      //motore 6 non funziona
+// };
 
 //ROBOT FERMO
-// motor_task_args motors[6] = {
-//   motor_task_args(&motor1, 200, &pid1, 0.0f),   //-200 //riferimento positivo -> giro antiorario   --- get.Encoder restituisce valori positivi in senso orario
-//   motor_task_args(&motor2, 200, &pid2, 0.0f),   //riferimento positivo -> va avanti //NON USARE
-//   motor_task_args(&motor3, 150, &pid3, 0.0f),  //30 //riferimento positivo -> verso alto ----- in alto impazzisce
-//   motor_task_args(&motor4, 150, &pid4, 0.0f), //20 //riferimento positivo -> verso l'alto
-//   motor_task_args(&motor5, 100, &pid5, 0.0f), //-30 //riferimento positivo -> verso il basso
-//   motor_task_args(&motor6, 100, &pid6, 0.0f) //motore 6 non funziona
-// };
+motor_task_args motors[6] = {
+  motor_task_args(&motor1, 200, &pid1, 0.0f),   //-200 //riferimento positivo -> giro antiorario   --- get.Encoder restituisce valori positivi in senso orario
+  motor_task_args(&motor2, 200, &pid2, 0.0f),   //riferimento positivo -> va avanti //NON USARE
+  motor_task_args(&motor3, 150, &pid3, 0.0f),  //30 //riferimento positivo -> verso alto ----- in alto impazzisce
+  motor_task_args(&motor4, 150, &pid4, 0.0f), //20 //riferimento positivo -> verso l'alto
+  motor_task_args(&motor5, 100, &pid5, 0.0f), //-30 //riferimento positivo -> verso il basso
+  motor_task_args(&motor6, 100, &pid6, 0.0f) //motore 6 non funziona
+};
 
 void setup() {
   // Inizializzazione delle risorse
@@ -197,7 +212,21 @@ void setup() {
   pid5.setup(PID_5_KP, PID_5_KI, PID_5_KD);
   pid6.setup(PID_6_KP, PID_6_KI, PID_6_KD);
 
-  // Passa l'intero array motors ai task
+  //OSCILLOSCOPIO
+  pinMode(DEBUG_PIN, OUTPUT);
+  pinMode(pinPWM, OUTPUT);
+  //pinMode(PA4, OUTPUT);
+  //digitalWrite(DEBUG_PIN, HIGH);
+  //delayMicroseconds(10000); // oppure delay(1) per ms
+  //delay(10000);
+  //digitalWrite(DEBUG_PIN, LOW);
+
+
+
+ // digitalWrite(DEBUG_PIN, LOW);  // valore iniziale
+
+
+  //Passa l'intero array motors ai task
   xTaskCreate(robotStateManager, "RobotStateManager", 1000, motors, 10, NULL);
   xTaskCreate(read_motor_encoders, "ReadEncoders", 1000, motors, 9, NULL);
   xTaskCreate(pidTask, "PidTask", 1000, motors, 8, NULL);
@@ -207,4 +236,15 @@ void setup() {
 }
 
 void loop() {
+  //  analogWrite(pinPWM, HIGH);
+  //  delay(5000); //3 millisecondi 
+  //  analogWrite(pinPWM, LOW);
+  //   delay(5000);
+
+
+  // digitalWrite(DEBUG_PIN, HIGH);
+  // delay0(2);
+  // digitalWrite(DEBUG_PIN, LOW);
+  // delay(20);
+
 }
